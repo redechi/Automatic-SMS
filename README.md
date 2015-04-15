@@ -40,7 +40,7 @@ Open `localhost:3000` in your browser.
 
 ### Testing locally, skipping oAuth
 
-You can test locally as a logged in user, bypassing the oAuth login by including an `TOKEN`, `USER_ID`, and `USER_ID` when running the app.
+You can test locally as a logged in user, bypassing the oAuth login by including a `TOKEN` and `USER_ID` when running the app.
 
     TOKEN=<YOUR-AUTOMATIC-ACCESS-TOKEN> USER_ID=<YOUR-AUTOMATIC-USER-ID> DEBUG=automaticsms gulp develop
 
