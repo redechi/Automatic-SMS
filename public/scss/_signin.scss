@@ -100,7 +100,7 @@
 }
 
 .signin-instructions {
-  display: inline-block;
+  display: block;
   font-size: 18px;
 }
 
@@ -117,13 +117,21 @@
 }
 
 .signin-text {
-  margin-left: 50px;
+  text-align: center;
 }
 
 .signin-btn {
+  background: url("../images/auth_automatic-connect-32.svg") 0 0 no-repeat;
   display: block;
+  height: 32px;
   margin: 10px auto 0;
-  width: 147px;
+  text-indent: -9999px;
+  width: 205px;
+
+  &:hover,
+  &:active {
+    background-image: url("../images/auth_automatic-connect-hover-32.svg");
+  }
 }
 
 .disabled,
@@ -149,6 +157,10 @@
 @media (min-width: 630px) {
   .return-link {
     display: block;
+  }
+
+  .signin-instructions {
+    display: inline-block;
   }
 
   .signin-description {

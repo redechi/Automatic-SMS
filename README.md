@@ -1,4 +1,4 @@
-# Automatic SMS
+# Automatic SMS Example App
 
 This is a node.js app that allows you to set rules for sending SMS notifications about starting or finishing a trip with [Automatic](http://automatic.com). For example: text your significant other when you leave work on a weekday evening.
 
@@ -47,3 +47,13 @@ You can test locally as a logged in user, bypassing the oAuth login by including
 ## Modifying
 
 This app uses SASS and React which are compiled by gulp into the `public/dest` and `public/css` folders.
+
+## Deploying
+
+### Add ons
+
+The app is can be deployed on Heroku with MongoLab and RedisCloud addons.
+
+### Environment Variables
+
+Add all the items in config-sample.json as heroku environment variables as well as a `NODE_ENV` variable set to `production`.
