@@ -1,0 +1,15 @@
+// scss-lint:disable VendorPrefix
+
+.form-control::-moz-placeholder {
+  color: #cccccc;
+  opacity: 1;
+}
+
+.form-control:-ms-input-placeholder,
+.form-control::-webkit-input-placeholder {
+  color: #cccccc;
+}
+
+.has-error {
+  color: #a94442;
+}

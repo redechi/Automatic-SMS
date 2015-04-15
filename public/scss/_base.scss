@@ -1,0 +1,65 @@
+body {
+  color: $grey;
+  font-family: 'avenir next', avenir, helvetica, arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: inherit;
+  font-weight: normal;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: normal;
+  line-height: 24px;
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: normal;
+  line-height: 20px;
+}
+
+h3 {
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 16px;
+}
+
+h4 {
+  font-size: 14px;
+}
+
+h5 {
+  font-size: 12px;
+}
+
+a {
+  color: $dark-grey;
+
+  &:hover {
+    color: $blue;
+    text-decoration: none;
+  }
+
+  &.link-blue {
+    color: $blue;
+
+    &:hover {
+      color: $dark-grey;
+    }
+  }
+}
+
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dppx) {
+  body {
+    background-image: url("../images/cross_scratches@2x.png");
+    background-size: 256px 256px;
+  }
+}

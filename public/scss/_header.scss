@@ -1,0 +1,91 @@
+.automatic-logo {
+  background: url("../images/automatic-logo-header.png") 0 18px no-repeat;
+  display: inline-block;
+  float: left;
+  height: 52px;
+  vertical-align: middle;
+  width: 31px;
+}
+
+.sms-title {
+  background: $blue;
+  color: $white;
+  display: inline-block;
+  font-size: 20px;
+  height: 70px;
+  line-height: 24px;
+  margin-left: 20px;
+  padding: 22px 0 0 31px;
+  vertical-align: middle;
+  width: 140px;
+
+  .plus {
+    border: 1px solid $white;
+    border-radius: 10px;
+    float: left;
+    font-size: 15px;
+    height: 19px;
+    line-height: 19px;
+    margin: 0 9px 0 0;
+    text-align: center;
+    width: 19px;
+  }
+}
+
+.main-header {
+  background: $light-grey;
+  border-bottom: 1px solid $border;
+  height: 70px;
+  max-height: 70px;
+  min-width: 940px;
+  padding: 0 20px;
+
+  .wrapper {
+    width: 880px;
+  }
+
+  .top-menu {
+    float: right;
+    height: 70px;
+    max-width: 142px;
+    position: relative;
+    text-align: right;
+
+    .user-menu {
+      cursor: pointer;
+      display: inline-block;
+      margin-top: 25px;
+
+      &:hover {
+        color: $dark-grey;
+      }
+
+      .user-name {
+        padding-right: 6px;
+      }
+    }
+  }
+}
+
+.alert {
+  clear: both;
+  display: none;
+  margin-top: 20px;
+}
+
+@media (min-width: $screen-sm) {
+  .main-header {
+    padding: 0 30px;
+  }
+
+  .automatic-logo {
+    width: 119px;
+  }
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dppx) {
+  .automatic-logo {
+    background-image: url("../images/automatic-logo-header@2x.png");
+    background-size: 119px 33px;
+  }
+}

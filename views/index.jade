@@ -1,0 +1,68 @@
+doctype html
+html(lang="en")
+  head
+    title Automatic SMS
+    meta(http-equiv="content-type" content="text/html; charset=utf-8")
+    meta(http-equiv="X-UA-Compatible" content="chrome=1")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="description" content="Text others when you arrive or depart")
+    link(rel="stylesheet" type="text/css" href="/css/style.css" media="screen")
+  body.signin-body
+  
+    .return-link Go to 
+      a.link-blue(href="http://automatic.com") automatic.com
+      
+    .signin-header
+      include header.jade
+    
+    .panel.signin-panel
+      .panel-body
+        .row
+          .col-md-10.col-md-offset-1
+            h2.signin-title Text others when you arrive or depart
+        .row
+          .col.md-12
+            .signin-graphics
+              .logo-badge-automatic
+              .icon-integrations-arrows
+              .logo-badge-sms <i class="fa fa-mobile"></i>
+        .row
+          .col-md-10.col-md-offset-1
+            .signin-description Sign in to your Automatic account.
+        #alert.alert
+        .row.border-both(class=automatic ? 'completed' : '')
+          .signin-instructions 
+            .signin-text Authorize your Automatic account
+          if automatic
+            a.btn.btn-blue.signin-btn.disabled(href="/authorize/") <i class="fa fa-check"></i> Authorized
+          else
+            a.btn.btn-blue.signin-btn(href="/authorize/") Authorize
+        .row
+          .col-md-10.col-md-offset-1
+            .signin-learnmore 
+              | Learn more about 
+              a.link-blue(href="http://automatic.com/sms") Automatic SMS
+      
+    script.
+      function getQueryParams(qs) {
+        qs = qs.split('+').join(' ');
+
+        var params = {}, tokens,
+            re = /[?&]?([^=]+)=([^&]*)/g;
+
+        while(tokens = re.exec(qs)) {
+          params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+        }
+
+        return params;
+      };
+      
+      var query = getQueryParams(document.location.search);
+      
+      if(query.alert) {
+        var alert = document.getElementById('alert');
+        alert.textContent = query.alert;
+        alert.classList.add('show');
+        alert.classList.add('alert-danger');
+      }
+        

@@ -1,0 +1,225 @@
+.count {
+  background: #faf9f7;
+  border: 1px solid $border;
+  border-radius: 4px;
+  margin: 0 30px 30px 0;
+  padding: 15px;
+}
+
+.rule-list {
+  margin-bottom: 15px;
+}
+
+.rule {
+  margin-bottom: 20px;
+}
+
+.rule-status {
+  float: left;
+  width: 95px;
+
+  .switch-candy a {
+    background-color: #a94442;
+  }
+
+  .switch-light {
+    cursor: pointer;
+    margin-left: 0;
+
+    input:checked ~ a {
+      background-color: #70c66b;
+    }
+  }
+}
+
+.rule-summary {
+  background: $content-background;
+  border: 1px solid $border;
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  margin-right: 30px;
+  padding: 15px;
+
+  .title {
+    display: inline-block;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 5px;
+    padding-left: 10px;
+  }
+
+  &.disabled {
+    background: #fff4f4;
+    border-color: #dcc3c3;
+    border-style: dotted;
+
+    .rule-summary-row {
+      color: #aaaaaa;
+    }
+
+    mark {
+      background-color: #f7e6e6;
+      color: #999999;
+    }
+  }
+
+  .rule-summary-row {
+    clear: both;
+    font-size: 16px;
+    line-height: 26px;
+  }
+
+  mark {
+    background-color: #d9edf7;
+    font-weight: bold;
+  }
+}
+
+.rule-controls {
+  background: $content-background;
+  border-bottom: 1px solid $border;
+  border-bottom-right-radius: 4px;
+  border-right: 1px solid $border;
+  border-top: 1px solid $border;
+  border-top-right-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  float: right;
+  margin-top: 10px;
+  overflow: hidden;
+  width: 30px;
+
+  a {
+    cursor: pointer;
+    display: block;
+    padding: 6px;
+
+    &.btn-edit {
+      border-bottom: 1px solid $border;
+    }
+
+    &.btn-edit:hover {
+      color: rgb(237, 182, 45);
+    }
+
+    &.btn-delete:hover {
+      color: #db2723;
+    }
+  }
+}
+
+.rule-form {
+  background: $content-background;
+  border: 1px solid $border;
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  margin-right: 30px;
+
+  input,
+  select {
+    color: rgb(67, 111, 181);
+  }
+
+  label {
+    font-weight: normal;
+  }
+
+  .form-group.form-select label {
+    width: 114px;
+  }
+
+  .form-section {
+    background-color: rgba(0, 0, 0, 0.03);
+    float: left;
+    margin: 0 0 10px 1.2%;
+    min-height: 280px;
+    padding: 5px 15px;
+    width: 31.8%;
+  }
+
+  .form-title {
+    margin-bottom: 0;
+    padding: 8px 15px;
+
+    input {
+      font-size: 20px;
+      height: 40px;
+    }
+  }
+
+  .form-submit {
+    background: #eeeeee;
+    border-top: 1px solid $border;
+    clear: both;
+    overflow: hidden;
+    padding: 15px;
+  }
+
+  .form-section-header {
+    height: 30px;
+    margin-bottom: 10px;
+  }
+
+  .form-section-header-automatic {
+    background: url("../images/automatic-logo.png") center 0 no-repeat;
+  }
+
+  .form-section-header-time {
+    font-size: 24px;
+
+    i {
+      display: block;
+      margin: 0 auto;
+      width: 25px;
+    }
+  }
+
+  .form-section-header-sms {
+    font-size: 30px;
+    text-align: center;
+  }
+
+  .form-day-of-week {
+    margin-top: 12px;
+
+    .checkbox-inline [type="checkbox"] {
+      margin-left: -16px;
+    }
+
+    .checkbox-inline+.checkbox-inline {
+      margin-left: 6px;
+    }
+  }
+
+  .form-time-of-day {
+    padding-left: 20px;
+  }
+
+  .form-control.rule-country-code {
+    width: 120px;
+  }
+
+  .form-control.rule-phone {
+    width: 120px;
+  }
+}
+
+.start-time,
+.end-time {
+  width: 90px !important;
+}
+
+.address-map,
+.home-address-map {
+  border: 1px solid $border;
+  height: 246px;
+  width: 246px;
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dppx) {
+  .rule-form {
+    .form-section-header-automatic {
+      background-image: url("../images/automatic-logo@2x.png");
+      background-size: 22px 24px;
+    }
+  }
+}

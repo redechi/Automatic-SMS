@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  .intro
+    .row
+      .col-md-12
+        h1 Automatic SMS
+    .row
+        .col-md-4
+          .well 
+            h3 About this app
+            .intro-text This application sends SMS notifications to people when you start or end a trip, based on rules you create.
+          
+        .col-md-4
+          .well 
+            h3 How it works
+            .intro-text Choose whether a rule should be triggered by turning your car on or off. Select a number to text and a message to send. If more than one rule applies, only the first matching rule will be triggered. 
+        .col-md-4
+          .well 
+            h3 Get started 
+            .intro-text Below you’ll find some suggested rules to get you started. They are off by default. Simply edit them and add a phone number and message to get started. Messages are capped at #{smsMonthlyLimit} per calendar month.
+      
+  .row
+    .col-md-12
+      #content
+
+block scripts
+  script.
+    var smsMonthlyLimit = #{smsMonthlyLimit};
+  script(src="/dest/index.js")

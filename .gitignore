@@ -1,0 +1,10 @@
+node_modules
+config.json
+.env
+.idea
+
+#compiled js files
+public/dest
+
+#compiled css files
+public/css

@@ -1,0 +1,25 @@
+doctype html
+html(lang="en")
+  head
+    title Automatic SMS
+    meta(http-equiv="content-type" content="text/html; charset=utf-8")
+    meta(http-equiv="X-UA-Compatible" content="chrome=1")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    meta(name="description" content="Text others when you arrive or depart")
+    link(rel="stylesheet" type="text/css" href="/css/style.css" media="screen")
+    link(rel="stylesheet" type="text/css" href="/css/css-toggle-switch/toggle-switch.css")
+      
+  body
+    .main-header
+      .wrapper
+        include header.jade
+        
+        #top-menu.top-menu
+
+    .wrapper.content
+      block content
+        
+        
+    script(src="//maps.google.com/maps/api/js?sensor=false&libraries=places")
+
+    block scripts
