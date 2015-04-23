@@ -121,7 +121,8 @@
 }
 
 .signin-btn {
-  background: url("../images/auth_automatic-connect-32.svg") 0 0 no-repeat;
+  background: url("../images/auth_automatic-connect-28-sprite.svg") 0 0 no-repeat;
+  background-size: 205px 64px;
   display: block;
   height: 32px;
   margin: 10px auto 0;
@@ -130,7 +131,7 @@
 
   &:hover,
   &:active {
-    background-image: url("../images/auth_automatic-connect-hover-32.svg");
+    background-position: 0 -32px;
   }
 }
 
