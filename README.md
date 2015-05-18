@@ -38,9 +38,9 @@ The `GOOGLE_MAPS_CLIENT_ID` and `GOOGLE_MAPS_API_KEY` are optional if you'd like
 
 Open `localhost:3000` in your browser.
 
-### Testing locally, skipping oAuth
+### Testing locally, skipping OAuth
 
-You can test locally as a logged in user, bypassing the oAuth login by including a `TOKEN` and `USER_ID` when running the app.
+You can test locally as a logged in user, bypassing the OAuth login by including a `TOKEN` and `USER_ID` when running the app.
 
     TOKEN=<YOUR-AUTOMATIC-ACCESS-TOKEN> USER_ID=<YOUR-AUTOMATIC-USER-ID> DEBUG=automaticsms gulp develop
 
