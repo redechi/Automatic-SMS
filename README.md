@@ -58,6 +58,10 @@ The app is can be deployed on Heroku with MongoLab and RedisCloud addons.
 
 Add all the items in config-sample.json as heroku environment variables as well as a `NODE_ENV` variable set to `production`.
 
+## Support
+
+Please write to developer@automatic.com if you have any questions or need help.
+
 ## License
 
 This project is licensed under the terms of the Apache 2.0 license.
