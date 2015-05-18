@@ -516,7 +516,7 @@ var RuleForm = React.createClass({
         {errors}
         <div className="form-group form-title">
           <label>Title</label>
-          <input type="text" placeholder="When I leave home, send and SMS to my significant other" ref="title" className="form-control" defaultValue={this.props.rule.title} />
+          <input type="text" placeholder="When I leave home, send an SMS to my significant other" ref="title" className="form-control" defaultValue={this.props.rule.title} />
         </div>
         <div className="form-section">
           <div className="form-section-header form-section-header-automatic"></div>
@@ -787,7 +787,7 @@ var RuleForm = React.createClass({
               <option value="263">Zimbabwe (+263)</option>
               </optgroup>
             </select>&nbsp;
-            <input type="text" placeholder="123 456-7890" ref="phone" type="tel" className="form-control rule-phone" defaultValue={formatPhone(this.props.rule.phone)} />
+            <input placeholder="123 456-7890" ref="phone" type="tel" className="form-control rule-phone" defaultValue={formatPhone(this.props.rule.phone)} />
           </div>
           <div className="form-group">
             <label className="">Message</label>
