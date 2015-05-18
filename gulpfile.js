@@ -66,19 +66,17 @@ gulp.task('js:develop', ['jshint'], function() {
 });
 
 
-gulp.task('js:compress', ['js:browserify'], function() {
-  gulp.src('./public/dest/index.js')
-    .pipe(plugins.uglify())
-    .pipe(gulp.dest('./public/dest'));
-});
+gulp.task('js:compress', function() {
+  var bundleStream = browserify('./public/javascripts/index.js')
+    .transform(reactify)
+    .bundle();
 
-
-gulp.task('js:browserify', function() {
-  var b = browserify('./public/javascripts/index.js')
-    .transform(reactify);
-
-  b.bundle()
+  bundleStream
     .pipe(source('index.js'))
+    .pipe(plugins.streamify(plugins.uglify()))
+    .pipe(require('vinyl-buffer')())
+    .pipe(plugins.sourcemaps.init({loadMaps: true}))
+    .pipe(plugins.sourcemaps.write('./'))
     .pipe(gulp.dest('./public/dest'));
 });
 
