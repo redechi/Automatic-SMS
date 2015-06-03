@@ -115,7 +115,9 @@ gulp.task('develop', function() {
     'public/css/**/*.css',
     'public/images/**/*',
     'views/**/*.jade'
-  ], server.notify);
+  ], function() {
+    server.notify.apply(server);
+  });
 
   //watch for back-end js changes
   gulp.watch([
