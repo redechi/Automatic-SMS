@@ -1,0 +1,42 @@
+{
+  "name": "Automatic SMS Demo",
+  "description": "Automatic SMS Demo Application",
+  "keywords": [
+    "node.js",
+    "twilio",
+    "Automatic",
+    "Connected Car"
+  ],
+  "repository": "https://github.com/Automatic/Automatic-SMS",
+  "success_url": "/",
+  "env": {
+    "AUTOMATIC_CLIENT_ID": {
+      "description": "Your Automatic Client ID. Get one from developer.automatic.com"
+    },
+    "AUTOMATIC_CLIENT_SECRET": {
+      "description": "Your Automatic Client Secret. Get one from developer.automatic.com"
+    },
+    "TWILIO_NUMBER": {
+      "description": "Your Twilio Phone Number, starting with a \"+\" and country code. Get one from twilio.com"
+    },
+    "TWILIO_SID": {
+      "description": "Your Twilio SID. Get one from twilio.com"
+    },
+    "TWILIO_TOKEN": {
+      "description": "Your Twilio TOKEN. Get one from twilio.com"
+    },
+    "SMS_MONTHLY_LIMIT": {
+      "description": "The monthly limit, per user, of SMS messages allowed.",
+      "value": "100"
+    },
+    "NODE_ENV": "production",
+    "SESSION_SECRET": {
+      "description": "A secret key for verifying the integrity of signed cookies.",
+      "generator": "secret"
+    }
+  },
+  "addons": [
+    "mongolab",
+    "rediscloud"
+  ]
+}

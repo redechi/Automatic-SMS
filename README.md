@@ -12,7 +12,16 @@ http://automaticsms.herokuapp.com
 ![automatic-sms-screenshot](https://cloud.githubusercontent.com/assets/96217/7166730/6fb9e248-e364-11e4-8e03-701629d4e13e.png)
 
 
-## Installation
+## One-Click deploy to Heroku
+
+Click this button to instantly deploy this app to Heroku. You'll need an [Automatic client ID and secret](http://developer.automatic.com) as well as info from your [Twilio account](https://www.twilio.com).
+
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+
+After deploying, you will need to use the Automatic [Developer Apps Manager](https://developer.automatic.com/my-apps/) to set your application's redirect URL and webhook URL to match the Heroku app name you selected when deploying. For instance, if you name your app `sms-test` in Heroku your redirect URL should be `https://sms-test.herokuapp.com/redirect` and your webhook URL should be `https://sms-test.herokuapp.com/webhook`. Note that the URLs must start with `https`.
+
+
+## Running Locally
 
 ### Install node and gulp
 
