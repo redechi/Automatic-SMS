@@ -68,7 +68,8 @@
   "devDependencies": {
     "connect-livereload": "~0.5.3",
     "gulp-jshint": "~1.11.0",
-    "gulp-live-server": "~0.0.17",
-    "gulp-scss-lint": "~0.2.0"
+    "gulp-livereload": "~3.8.0",
+    "gulp-scss-lint": "~0.2.0",
+    "nodemon": "~1.4.0"
   }
 }

@@ -3,7 +3,7 @@ var source = require('vinyl-source-stream');
 var watchify = require('watchify');
 var browserify = require('browserify');
 var reactify = require('reactify');
-var plugins = require("gulp-load-plugins")();
+var plugins = require('gulp-load-plugins')();
 
 
 var bundler = watchify(browserify('./public/javascripts/index.js', watchify.args).transform(reactify));
@@ -20,7 +20,8 @@ function bundle() {
     .pipe(require('vinyl-buffer')())
     .pipe(plugins.sourcemaps.init({loadMaps: true})) // loads map from browserify file
     .pipe(plugins.sourcemaps.write('./')) // writes .map file
-    .pipe(gulp.dest('./public/dest'));
+    .pipe(gulp.dest('./public/dest'))
+    .pipe(plugins.livereload());
 }
 
 
@@ -43,7 +44,8 @@ gulp.task('scss:compileDev', function() {
     .pipe(plugins.sourcemaps.init())
     .pipe(plugins.sass({errLogToConsole: true}))
     .pipe(plugins.sourcemaps.write())
-    .pipe(gulp.dest('./public/css'));
+    .pipe(gulp.dest('./public/css'))
+    .pipe(plugins.livereload());
 });
 
 
@@ -97,34 +99,23 @@ gulp.task('css:copy', function() {
 
 
 gulp.task('develop', function() {
-  var server = plugins.liveServer.new('bin/www');
-  server.start();
+  plugins.livereload.listen();
 
-  //watch for sass changes
-  gulp.watch(['public/scss/**/*.scss'], ['scss:develop']);
-
-  //watch for jsx changes
-  gulp.watch([
-    'public/jsx/**/*.jsx',
-    'public/javascripts/**/*.js'
-  ], ['js:develop']);
-
-  //watch for front-end changes
-  gulp.watch([
-    'public/dest/**/*.js',
-    'public/css/**/*.css',
-    'public/images/**/*',
-    'views/**/*.jade'
-  ], function() {
-    server.notify.apply(server);
+  require('nodemon')({
+    script: 'bin/www',
+    stdout: true
+  }).on('readable', function() {
+    this.stdout.on('data', function(chunk) {
+      if (/^listening/.test(chunk)) {
+        plugins.livereload.reload();
+      }
+      process.stdout.write(chunk);
+    });
   });
 
-  //watch for back-end js changes
-  gulp.watch([
-    'app.js',
-    'routes/**/*.js',
-    'libs/**/*.js'
-  ], server.start);
+  gulp.watch('public/**/*.scss', ['scss:develop']);
+
+  gulp.watch('public/**/*.+(jsx|js)', ['js:develop']);
 });
 
 
