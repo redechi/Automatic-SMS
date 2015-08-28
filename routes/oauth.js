@@ -37,7 +37,7 @@ exports.disconnect = function(req, res, next) {
 
 exports.redirect = function(req, res, next) {
   if(req.query.denied === 'true') {
-    return res.redirect('/?alert=User denied access to Automatic');
+    return res.render('index', {alert: 'User denied access to Automatic'});
   }
 
   oauth2.authCode.getToken({
