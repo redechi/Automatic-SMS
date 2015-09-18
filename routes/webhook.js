@@ -80,8 +80,8 @@ function doesRuleApply(rule, webhook, automaticEvent) {
 function findRules(req, automaticEvent) {
   var automatic_id = req.body.user.id,
       event_id = req.body.id,
-      lat = req.body.location.lat,
-      lon = req.body.location.lon;
+      lat = (req.body && req.body.location) ? req.body.location.lat : null,
+      lon = (req.body && req.body.location) ? req.body.location.lon : null;
 
   db.getRecentCount(automatic_id, function(e, count) {
     if(count && moment().startOf('month').isSame(moment(count.month)) && count.count > nconf.get('SMS_MONTHLY_LIMIT')) {
