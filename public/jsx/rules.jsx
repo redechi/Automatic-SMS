@@ -777,7 +777,7 @@ var RuleForm = React.createClass({
             <textarea className="form-control message" ref="message" maxLength="140" defaultValue={this.props.rule.message}></textarea>
           </div>
           <div className="form-group">
-            <label className="checkbox-inline"><input type="checkbox" ref="includeMap" title="Include a Map" defaultChecked={this.props.rule.includeMap}  onChange={this.handleIncludeMapChange} /> Include a map of my current location</label>
+            <label className="checkbox-inline"><input type="checkbox" ref="includeMap" title="Include a Map" defaultChecked={this.props.rule.includeMap}  onChange={this.handleIncludeMapChange} /> Include a map of my current location (expires at the end of trip)</label>
           </div>
         </div>
 

@@ -38,11 +38,6 @@
   margin: 70px auto 0;
   max-width: 600px;
 
-  .border-top {
-    border-top: 1px solid $lightish-grey;
-    padding: 10px 20px;
-  }
-
   .border-both {
     border-bottom: 1px solid $lightish-grey;
     border-top: 1px solid $lightish-grey;
@@ -92,11 +87,6 @@
     top: 3px;
     width: 39px;
   }
-}
-
-.signin-description {
-  margin-bottom: 30px;
-  text-align: center;
 }
 
 .signin-instructions {
