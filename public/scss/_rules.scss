@@ -2,7 +2,7 @@
   background: #faf9f7;
   border: 1px solid $border;
   border-radius: 4px;
-  margin: 0 30px 30px 0;
+  margin: 0 0 30px 0;
   padding: 15px;
 }
 
@@ -116,7 +116,6 @@
   border: 1px solid $border;
   border-radius: 4px;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
-  margin-right: 30px;
 
   input,
   select {
@@ -133,11 +132,8 @@
 
   .form-section {
     background-color: rgba(0, 0, 0, 0.03);
-    float: left;
-    margin: 0 0 10px 1.2%;
-    min-height: 280px;
+    border-top: 1px solid $border;
     padding: 5px 15px;
-    width: 31.8%;
   }
 
   .form-title {
@@ -217,6 +213,24 @@
   border: 1px solid $border;
   height: 246px;
   width: 246px;
+}
+
+@media (min-width: $screen-sm) {
+  .count {
+    margin-right: 30px;
+  }
+
+  .rule-form {
+    margin-right: 30px;
+
+    .form-section {
+      border: none;
+      float: left;
+      margin: 0 0 10px 1.2%;
+      min-height: 280px;
+      width: 31.8%;
+    }
+  }
 }
 
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dppx) {

@@ -1,7 +1,6 @@
 .wrapper {
   margin: 0 auto;
   position: relative;
-  width: 940px;
 }
 
 .wrapper.content {
@@ -14,4 +13,11 @@
 .well h2,
 .well h3 {
   margin-top: 0;
+}
+
+
+@media (min-width: $screen-sm) {
+  .wrapper {
+    width: 940px;
+  }
 }
