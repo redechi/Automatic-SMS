@@ -16,6 +16,13 @@
     "AUTOMATIC_CLIENT_SECRET": {
       "description": "Your Automatic Client Secret. Get one from developer.automatic.com"
     },
+    "AUTOMATIC_WEBSOCKET_URL": {
+      "description": "The Automatic Websocket API URL",
+      "value": "https://stream.automatic.com"
+    },
+    "MAPBOX_ACCESS_TOKEN": {
+      "description": "Your Mapbox Access Token"
+    },
     "TWILIO_NUMBER": {
       "description": "Your Twilio Phone Number, starting with a \"+\" and country code. Get one from twilio.com"
     },

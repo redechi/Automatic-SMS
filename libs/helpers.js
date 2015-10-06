@@ -1,10 +1,11 @@
-var debug = require('debug')('automaticsms'),
-    request = require('request'),
-    _ = require('underscore'),
-    nconf = require('nconf'),
-    moment = require('moment-timezone'),
-    querystring = require('querystring'),
-    sign = require('./sign');
+var crypto = require('crypto');
+var debug = require('debug')('automaticsms');
+var request = require('request');
+var _ = require('underscore');
+var nconf = require('nconf');
+var moment = require('moment-timezone');
+var querystring = require('querystring');
+var sign = require('./sign');
 
 
 exports.calculateDistanceMi = function(lat1, lon1, lat2, lon2) {
@@ -26,47 +27,6 @@ exports.calculateDistanceMi = function(lat1, lon1, lat2, lon2) {
 };
 
 
-exports.getTripDuration = function(rule, lat, lon, cb) {
-  var automatic_id = rule.automatic_id;
-  var query = {
-    origin: lat + ',' + lon,
-    destination: rule.homeAddress,
-    departure_time: 'now'
-  };
-  var path;
-
-  if(nconf.get('GOOGLE_MAPS_CLIENT_ID')) {
-    query.client = nconf.get('GOOGLE_MAPS_CLIENT_ID');
-    path = '/maps/api/directions/json?' + querystring.stringify(query);
-    path += '&signature=' + sign(nconf.get('GOOGLE_MAPS_API_KEY'), path);
-  } else {
-    path = '/maps/api/directions/json?' + querystring.stringify(query);
-  }
-
-  request({
-    uri: 'https://maps.googleapis.com' + path,
-    method: 'GET',
-    followAllRedirects: true,
-    json: true,
-    timeout: 5000
-  }, function(e, response, body) {
-    if(response && response.statusCode) {
-      debug('[' + automatic_id + '][getTripDuration] ' + response.statusCode);
-    }
-
-    if(!body || !body.routes || !body.routes.length) {
-      cb(new Error('Cannot get directions to ' + rule.homeAddress));
-    } else {
-      var duration_s = _.reduce(body.routes[0].legs, function(memo, leg) {
-        return memo += (leg.duration_in_traffic) ? leg.duration_in_traffic.value : leg.duration.value;
-      }, 0);
-
-      cb(null, Math.round(duration_s/60));
-    }
-  });
-};
-
-
 exports.getMinutes = function(time) {
   return time.minutes() + time.hours() * 60;
 };
@@ -80,4 +40,13 @@ exports.formatDurationHoursMinutes = function(minutes) {
 
 exports.cleanPhone = function(phone) {
   return (phone || '').replace(/[+()\. ,:-]+/g, '');
+};
+
+
+exports.randomAlphanumeric = function(length) {
+  var value = crypto.randomBytes(length).toString('base64')
+    .replace(/\+/g, '_')
+    .replace(/\//g, '-');
+
+  return value.substr(0, length);
 };

@@ -3,6 +3,6 @@ extends layout
 block content
   h1= message || 'Unknown Error'
   h2= error.status
-  pre #{error.stack || JSON.stringify(error || {})}
+  pre #{error.stack}
     p #{description}
   

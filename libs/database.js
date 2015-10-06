@@ -1,11 +1,14 @@
 var monk = require('monk');
 var moment = require('moment');
 var defaults = require('./defaults');
+var helpers = require('./helpers');
 var db = monk(process.env.MONGOLAB_URI || 'mongodb://127.0.0.1:27017/automaticsms');
-var users = db.get('users');
-var rules = db.get('rules');
-var counts = db.get('counts');
+
 var carState = db.get('carState');
+var counts = db.get('counts');
+var rules = db.get('rules');
+var shares = db.get('shares');
+var users = db.get('users');
 
 
 exports.getUser = function(automatic_id, cb) {
@@ -106,16 +109,16 @@ exports.getCarState = function(automatic_id, cb) {
 };
 
 
-exports.setCarState = function(webhook, cb) {
-  var automatic_id = webhook.user.id,
-      event = webhook.type,
-      ts = webhook.created_at;
+exports.setCarState = function(event, cb) {
+  var automatic_id = event.user.id;
+  var type = event.type;
+  var ts = moment(event.created_at).valueOf();
 
   carState.findAndModify(
     {automatic_id: automatic_id},
     {
       $set: {
-        event: event,
+        event: type,
         automatic_id: automatic_id,
         ts: ts
       }
@@ -123,4 +126,26 @@ exports.setCarState = function(webhook, cb) {
     {upsert: true},
     cb
   );
+};
+
+
+exports.getShare = function(share_id, cb) {
+  shares.findOne({
+    share_id: share_id,
+    expires: {$gte: new Date()}
+  }, cb);
+};
+
+
+exports.createShare = function(share, cb) {
+  // force expiration after 12 hours
+  share.expires = moment().add(12, 'hours').toDate();
+  share.share_id = helpers.randomAlphanumeric(8);
+
+  shares.insert(share, cb);
+};
+
+
+exports.deleteShare = function(automatic_id, cb) {
+  shares.remove({automatic_id: automatic_id}, cb);
 };

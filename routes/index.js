@@ -1,4 +1,5 @@
 var nconf = require('nconf');
+var db = require('../libs/database');
 
 exports.index = function(req, res, next) {
   if(req.session && req.session.access_token) {
@@ -6,6 +7,29 @@ exports.index = function(req, res, next) {
   } else {
     res.render('index');
   }
+};
+
+
+exports.share = function(req, res, next) {
+  if(!req.params.share_id) {
+    return next();
+  }
+
+  db.getShare(req.params.share_id, function(e, doc) {
+    if(e || !doc) {
+      return next();
+    }
+
+    req.session.share_id = doc.share_id;
+    req.session.shared_automatic_id = doc.automatic_id;
+    req.session.share_expires = doc.expires;
+
+    res.render('share', {
+      mapboxAccessToken: nconf.get('MAPBOX_ACCESS_TOKEN'),
+      shareId: doc.share_id,
+      loggedIn: false
+    });
+  });
 };
 
 

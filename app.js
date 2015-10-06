@@ -15,14 +15,16 @@ nconf
 
 var app = express();
 
-if(app.get('env') === 'development') {
+if(app.get('env') !== 'development') {
+	nconf.set('URL', 'https://automaticsms.herokuapp.com');
+} else {
+	nconf.set('URL', 'http://localhost:3000');
 	app.use(require('connect-livereload')());
 }
 
 var routes = require('./routes');
 var api = require('./routes/api');
 var oauth = require('./routes/oauth');
-var webhook = require('./routes/webhook');
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
@@ -34,26 +36,28 @@ app.use(bodyParser.urlencoded({extended:false}));
 app.use(cookieParser(nconf.get('SESSION_SECRET')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-
+var store;
+var cookie;
 if(app.get('env') !== 'development') {
-  var RedisStore = require('connect-redis')(session),
-      redisURL = url.parse(nconf.get('REDISCLOUD_URL')),
-      store = new RedisStore({
-        host: redisURL.hostname,
-        port: redisURL.port,
-        pass: redisURL.auth.split(':')[1]
-      }),
-      cookie = {
-        maxAge: 31536000000
-      };
+  var RedisStore = require('connect-redis')(session);
+  var redisURL = url.parse(nconf.get('REDISCLOUD_URL'));
+  store = new RedisStore({
+    host: redisURL.hostname,
+    port: redisURL.port,
+    pass: redisURL.auth.split(':')[1]
+  });
+  cookie = {
+    maxAge: 31536000000
+  };
 } else {
-  var memoryStore = session.MemoryStore,
-      store = new memoryStore(),
-      cookie = {
-        maxAge: 3600000,
-      };
+  var memoryStore = session.MemoryStore;
+  store = new memoryStore();
+  cookie = {
+    maxAge: 3600000,
+  };
 }
 
+app.set('store', store);
 
 app.use(session({
   store: store,
@@ -73,6 +77,8 @@ if(app.get('env') !== 'development') {
 
 app.get('/', routes.index);
 
+app.get('/l/:share_id/', routes.share);
+
 app.get('/api/user/', routes.authenticate, api.user);
 
 app.get('/api/rules/', routes.authenticate, api.rules);
@@ -87,8 +93,8 @@ app.get('/logout/', oauth.logout);
 app.get('/disconnect/', oauth.disconnect);
 app.get('/redirect/', oauth.redirect);
 
-app.post('/webhook/', webhook.incoming);
-
+// Connect to Automatic Events API over Websocket
+require('./libs/automatic_websocket')(app);
 
 // error handlers
 require('./libs/errors')(app);

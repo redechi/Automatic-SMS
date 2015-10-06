@@ -10,6 +10,8 @@ var bundler = watchify(browserify('./public/javascripts/index.js', watchify.args
 bundler.on('update', bundle);
 bundler.on('log', plugins.util.log);
 
+var shareBundler = watchify(browserify('./public/javascripts/share.js', watchify.args)).on('update', shareBundle);
+
 
 function bundle() {
   return bundler.bundle()
@@ -22,6 +24,19 @@ function bundle() {
     .pipe(plugins.sourcemaps.write('./')) // writes .map file
     .pipe(gulp.dest('./public/dest'))
     .pipe(plugins.livereload());
+}
+
+
+function shareBundle() {
+  return shareBundler.bundle()
+    // log errors
+    .on('error', plugins.util.log.bind(plugins.util, 'Browserify Error'))
+    .pipe(source('share.js'))
+    // build sourcemaps
+    .pipe(require('vinyl-buffer')())
+    .pipe(plugins.sourcemaps.init({loadMaps: true})) // loads map from browserify file
+    .pipe(plugins.sourcemaps.write('./')) // writes .map file
+    .pipe(gulp.dest('./public/dest'));
 }
 
 
@@ -65,16 +80,24 @@ gulp.task('css:minify', ['scss:compile'], function() {
 
 gulp.task('js:develop', ['jshint'], function() {
   bundle();
+  shareBundle();
 });
 
 
 gulp.task('js:compress', function() {
-  var bundleStream = browserify('./public/javascripts/index.js')
+  browserify('./public/javascripts/index.js')
     .transform(reactify)
-    .bundle();
-
-  bundleStream
+    .bundle()
     .pipe(source('index.js'))
+    .pipe(plugins.streamify(plugins.uglify()))
+    .pipe(require('vinyl-buffer')())
+    .pipe(plugins.sourcemaps.init({loadMaps: true}))
+    .pipe(plugins.sourcemaps.write('./'))
+    .pipe(gulp.dest('./public/dest'));
+
+  browserify('./public/javascripts/share.js')
+    .bundle()
+    .pipe(source('share.js'))
     .pipe(plugins.streamify(plugins.uglify()))
     .pipe(require('vinyl-buffer')())
     .pipe(plugins.sourcemaps.init({loadMaps: true}))
@@ -95,8 +118,10 @@ gulp.task('fonts:copy', function() {
 gulp.task('css:copy', function() {
   gulp.src('./node_modules/css-toggle-switch/dist/**/*')
     .pipe(gulp.dest('./public/css/css-toggle-switch'));
-});
 
+  gulp.src('./node_modules/mapbox.js/theme/**/*')
+    .pipe(gulp.dest('./public/css/mapbox'));
+});
 
 gulp.task('develop', function() {
   plugins.livereload.listen();

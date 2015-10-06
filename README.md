@@ -2,7 +2,7 @@
 
 This is a node.js app that allows you to set rules for sending SMS notifications about starting or finishing a trip with [Automatic](http://automatic.com). For example: text your significant other when you leave work on a weekday evening.
 
-This app demonstrates the use of the [Automatic Webhook API](http://developer.automatic.com).
+This app demonstrates the use of the [Automatic Websocket API](http://developer.automatic.com).
 
 ## Example
 
@@ -18,7 +18,7 @@ Click this button to instantly deploy this app to Heroku. You'll need an [Automa
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
-After deploying, you will need to use the Automatic [Developer Apps Manager](https://developer.automatic.com/my-apps/) to set your application's redirect URL and webhook URL to match the Heroku app name you selected when deploying. For instance, if you name your app `sms-test` in Heroku your redirect URL should be `https://sms-test.herokuapp.com/redirect` and your webhook URL should be `https://sms-test.herokuapp.com/webhook`. Note that the URLs must start with `https`.
+After deploying, you will need to use the Automatic [Developer Apps Manager](https://developer.automatic.com/my-apps/) to set your application's redirect URL to match the Heroku app name you selected when deploying. For instance, if you name your app `sms-test` in Heroku your redirect URL should be `https://sms-test.herokuapp.com/redirect`. Note that the URLs must start with `https`.
 
 
 ## Running Locally
@@ -35,9 +35,7 @@ After deploying, you will need to use the Automatic [Developer Apps Manager](htt
 
 ### Configure your client id and client secret
 
-Copy the file `config-sample.json` to `config.json` and add your configuration variables for Automatic and Twilio.  
-
-The `GOOGLE_MAPS_CLIENT_ID` and `GOOGLE_MAPS_API_KEY` are optional if you'd like the app to work with Google Maps API for Work.  They provide the ability for ETAs to include traffic estimations.  If you don't include these in your config, ETAs will be based on normal drive times without traffic.
+Copy the file `config-sample.json` to `config.json` and add your configuration variables for Automatic, Mapbox and Twilio.
 
 ### Run the app locally, with debug logging
 

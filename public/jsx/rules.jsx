@@ -370,7 +370,7 @@ var RuleForm = React.createClass({
   getInitialState: function() {
     return {
       anywhere: this.props.rule.anywhere,
-      includeETA: this.props.rule.includeETA,
+      includeMap: this.props.rule.includeMap,
       errors: []
     };
   },
@@ -427,10 +427,7 @@ var RuleForm = React.createClass({
       countryCode: this.refs.countryCode.getDOMNode().value,
       phone: this.refs.phone.getDOMNode().value.trim(),
       message: this.refs.message.getDOMNode().value.trim(),
-      includeETA: this.refs.includeETA.getDOMNode().checked,
-      homeAddress: (this.refs.homeAddress) ? this.refs.homeAddress.getDOMNode().value.trim() : null,
-      homeAddressLatitude: (this.refs.homeAddress) ? this.props.rule.homeAddressLatitude : null,
-      homeAddressLongitude: (this.refs.homeAddress) ? this.props.rule.homeAddressLongitude : null,
+      includeMap: this.refs.includeMap.getDOMNode().checked,
       address: (this.refs.address) ? this.refs.address.getDOMNode().value.trim() : null,
       latitude: (this.refs.address) ? this.props.rule.latitude : null,
       longitude: (this.refs.address) ? this.props.rule.longitude : null,
@@ -455,8 +452,8 @@ var RuleForm = React.createClass({
   handleAllDayChange: function() {
     this.enableTimePicker();
   },
-  handleIncludeETAChange: function() {
-    this.setState({includeETA: this.refs.includeETA.getDOMNode().checked});
+  handleIncludeMapChange: function() {
+    this.setState({includeMap: this.refs.includeMap.getDOMNode().checked});
   },
   render: function() {
     if(this.state.anywhere !== true) {
@@ -493,20 +490,6 @@ var RuleForm = React.createClass({
       var errors = (
         <div className="alert alert-danger">
           <ul>{errorNodes}</ul>
-        </div>
-      );
-    }
-
-    if(this.state.includeETA === true) {
-      var homeAddress = (
-        <div>
-          <div className="form-group">
-            <label>Home Address (for ETA)</label>
-            <input type="text" ref="homeAddress" className="form-control" defaultValue={this.props.rule.homeAddress} />
-          </div>
-          <div className="form-group">
-            <div className="home-address-map" ref="homeAddressMap"></div>
-          </div>
         </div>
       );
     }
@@ -794,10 +777,8 @@ var RuleForm = React.createClass({
             <textarea className="form-control message" ref="message" maxLength="140" defaultValue={this.props.rule.message}></textarea>
           </div>
           <div className="form-group">
-            <label className="checkbox-inline"><input type="checkbox" ref="includeETA" title="Include My ETA" defaultChecked={this.props.rule.includeETA}  onChange={this.handleIncludeETAChange} /> Include my ETA with traffic</label>
+            <label className="checkbox-inline"><input type="checkbox" ref="includeMap" title="Include a Map" defaultChecked={this.props.rule.includeMap}  onChange={this.handleIncludeMapChange} /> Include a map of my current location</label>
           </div>
-
-          {homeAddress}
         </div>
 
         <div className="form-submit">
@@ -832,33 +813,6 @@ var RuleForm = React.createClass({
       });
 
       $(addressInput).keypress(function(event) {
-        return event.keyCode != 13;
-      });
-    }
-
-    if(this.refs.homeAddressMap) {
-      var homeAddressInput = this.refs.homeAddress.getDOMNode(),
-          homeAddressMap = this.refs.homeAddressMap.getDOMNode();
-
-      $(this.refs.homeAddressMap.getDOMNode()).locationpicker({
-        location: {
-          latitude: this.props.rule.homeAddressLatitude || 37.762275,
-          longitude: this.props.rule.homeAddressLongitude || -122.410785
-        },
-        radius: 10,
-        inputBinding: {
-          locationNameInput: $(homeAddressInput)
-        },
-        enableAutocomplete: true,
-        enableAutocompleteBlur: true,
-        enableReverseGeocode: true,
-        onchanged: _.bind(function(currentLocation, radius, isMarkerDropped) {
-          this.props.rule.homeAddressLatitude = currentLocation.latitude;
-          this.props.rule.homeAddressLongitude = currentLocation.longitude;
-        }, this)
-      });
-
-      $(homeAddressInput).keypress(function(event) {
         return event.keyCode != 13;
       });
     }
