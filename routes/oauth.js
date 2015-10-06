@@ -45,21 +45,32 @@ exports.redirect = function(req, res, next) {
   }, function(e, result) {
     if(e) return next(e);
 
+    // Attach `token` to the user's session for later use
     var token = oauth2.accessToken.create(result);
 
-    var user = {
-      automatic_access_token: token.token.access_token,
-      automatic_refresh_token: token.token.refresh_token,
-      automatic_expires_at: token.token.expires_at,
-      automatic_id: token.token.user.id
-    };
+    req.session.access_token = token.token.access_token;
 
-    req.session.access_token = user.automatic_access_token;
-    req.session.automatic_id = user.automatic_id;
+    // Get Automatic user id
+    request.get({
+      uri: 'https://api.automatic.com/user/me/',
+      headers: {Authorization: 'bearer ' + req.session.access_token},
+      json: true
+    }, function(e, r, body) {
+      if (e) return next(e);
 
-    db.saveUser(user, function(e, user) {
-      if(e) return next(e);
-      res.redirect('/');
+      req.session.automatic_id = body.id;
+
+      var user = {
+        automatic_access_token: token.token.access_token,
+        automatic_refresh_token: token.token.refresh_token,
+        automatic_expires_at: token.token.expires_at,
+        automatic_id: req.session.automatic_id
+      };
+
+      db.saveUser(user, function(e, user) {
+        if(e) return next(e);
+        res.redirect('/');
+      });
     });
   });
 };
