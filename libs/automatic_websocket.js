@@ -128,10 +128,16 @@ function doesRuleApply(rule, event, automaticEvent) {
     }
 
     // check that location is within radius
-    var distance = helpers.calculateDistanceMi(event.location.lat, event.location.lon, rule.latitude, rule.longitude);
-    if(rule.anywhere !== true && distance > radius) {
-      debug('[' + automatic_id + '][' + event_id + '][ruleCheck] Rejected: Rule radius ' + radius + ' does not include this location ' + distance);
-      return false;
+    if(rule.anywhere !== true) {
+      if(!event.location) {
+        debug('[' + automatic_id + '][' + event_id + '][ruleCheck] Rejected: Rule requires location and event has no location');
+        return false;
+      }
+      var distance = helpers.calculateDistanceMi(event.location.lat, event.location.lon, rule.latitude, rule.longitude);
+      if(distance > radius) {
+        debug('[' + automatic_id + '][' + event_id + '][ruleCheck] Rejected: Rule radius ' + radius + ' does not include this location ' + distance);
+        return false;
+      }
     }
 
     return true;
