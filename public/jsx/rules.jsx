@@ -370,7 +370,7 @@ var RuleForm = React.createClass({
   getInitialState: function() {
     return {
       anywhere: this.props.rule.anywhere,
-      includeMap: this.props.rule.includeMap,
+      automaticEvent: (this.props.rule.automaticEvent !== undefined) ? this.props.rule.automaticEvent : 'ignitionOn',
       errors: []
     };
   },
@@ -427,7 +427,7 @@ var RuleForm = React.createClass({
       countryCode: this.refs.countryCode.getDOMNode().value,
       phone: this.refs.phone.getDOMNode().value.trim(),
       message: this.refs.message.getDOMNode().value.trim(),
-      includeMap: this.refs.includeMap.getDOMNode().checked,
+      includeMap: (this.refs.includeMap) ? this.refs.includeMap.getDOMNode().checked : null,
       address: (this.refs.address) ? this.refs.address.getDOMNode().value.trim() : null,
       latitude: (this.refs.address) ? this.props.rule.latitude : null,
       longitude: (this.refs.address) ? this.props.rule.longitude : null,
@@ -437,7 +437,7 @@ var RuleForm = React.createClass({
 
     if(!this.ruleFormIsValid(rule)) {
       return;
-    };
+    }
 
     this.props.onRuleSubmit(rule);
 
@@ -446,14 +446,14 @@ var RuleForm = React.createClass({
   cancelEdit: function() {
     this.props.onRuleCancel();
   },
+  handleAutomaticEventChange: function() {
+    this.setState({automaticEvent: this.refs.automaticEvent.getDOMNode().value});
+  },
   handleAnywhereChange: function() {
     this.setState({anywhere: this.refs.anywhere.getDOMNode().checked});
   },
   handleAllDayChange: function() {
     this.enableTimePicker();
-  },
-  handleIncludeMapChange: function() {
-    this.setState({includeMap: this.refs.includeMap.getDOMNode().checked});
   },
   render: function() {
     if(this.state.anywhere !== true) {
@@ -477,6 +477,14 @@ var RuleForm = React.createClass({
           <div className="form-group">
             <div className="address-map" ref="addressMap"></div>
           </div>
+        </div>
+      );
+    }
+
+    if(this.state.automaticEvent === 'ignitionOn') {
+      var includeMap = (
+        <div className="form-group">
+          <label className="checkbox-inline"><input type="checkbox" ref="includeMap" title="Include a Map" defaultChecked={(this.props.rule.includeMap !== undefined) ? this.props.rule.includeMap : true} /> Include a map of my current location (expires at the end of trip)</label>
         </div>
       );
     }
@@ -505,7 +513,7 @@ var RuleForm = React.createClass({
           <div className="form-section-header form-section-header-automatic"></div>
           <div className="form-group form-select">
             <label>Automatic Event</label>
-            <select ref="automaticEvent" className="form-control" defaultValue={this.props.rule.automaticEvent}>
+            <select ref="automaticEvent" className="form-control" defaultValue={this.props.rule.automaticEvent} onChange={this.handleAutomaticEventChange}>
               <option value="ignitionOn">Ignition On</option>
               <option value="ignitionOff">Ignition Off</option>
             </select>
@@ -776,9 +784,7 @@ var RuleForm = React.createClass({
             <label className="">Message</label>
             <textarea className="form-control message" ref="message" maxLength="140" defaultValue={this.props.rule.message}></textarea>
           </div>
-          <div className="form-group">
-            <label className="checkbox-inline"><input type="checkbox" ref="includeMap" title="Include a Map" defaultChecked={this.props.rule.includeMap}  onChange={this.handleIncludeMapChange} /> Include a map of my current location (expires at the end of trip)</label>
-          </div>
+          {includeMap}
         </div>
 
         <div className="form-submit">
