@@ -27,6 +27,11 @@ module.exports = function (app) {
   automaticSocket.on('ignition:on', lookupRule);
 
   automaticSocket.on('ignition:off', function(data) {
+    var browserSocket = app.get('wss');
+    if (browserSocket) {
+      browserSocket.sendEvent(data);
+    }
+
     if(data && data.user && data.user.id) {
       // stop sharing location
       db.deleteShare(data.user.id, function(e) {
