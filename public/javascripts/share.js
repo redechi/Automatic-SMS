@@ -1,7 +1,8 @@
-var $ = jQuery = require('jquery');
 var moment = require('moment-timezone');
-require('mapbox.js');
+var $ = require('jquery');
+window.jQuery = $;
 
+require('mapbox.js');
 require('bootstrap-sass');
 
 

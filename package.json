@@ -1,7 +1,7 @@
 {
   "name": "automaticsms",
   "description": "Automatic SMS Demo Application",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "Brendan Nee",
     "email": "brendan@automatic.com",
@@ -40,7 +40,6 @@
     "jade": "1.11.0",
     "jquery": "2.1.4",
     "jquery-locationpicker": "Logicify/jquery-locationpicker-plugin#9318afa450d13d26944d36dea99b60cfc6241dd0",
-    "react": "~0.13.3",
     "jstimezonedetect": "1.0.5",
     "mapbox.js": "2.2.2",
     "moment": "2.10.6",
@@ -49,6 +48,8 @@
     "monk": "1.0.1",
     "morgan": "1.6.1",
     "nconf": "0.8.2",
+    "react": "0.14.0",
+    "react-dom": "0.14.0",
     "reactify": "1.1.1",
     "request": "2.65.0",
     "serve-favicon": "2.3.0",

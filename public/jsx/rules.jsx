@@ -1,5 +1,6 @@
 var React = require('react');
-var $ = jQuery = require('jquery');
+var ReactDOM = require('react-dom');
+var $ = require('jquery');
 var moment = require('moment-timezone');
 var _ = require('underscore');
 var classNames = require('classnames');
@@ -24,27 +25,49 @@ function formatPhone(phone) {
 }
 
 
-var Rule = React.createClass({
-  getInitialState: function() {
-    return {};
-  },
-  resetRule: function() {
+class Rule extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+
+    this.showRuleEdit = () => {
+      this.setState({editing: true});
+      this.render();
+    };
+
+    this.hideRuleEdit = () => {
+      this.setState({editing: false});
+      this.render();
+    };
+
+    this.destroy = () => {
+      if(confirm('Are you sure you want to delete this rule?')) {
+        this.props.onRuleDestroy(this.props.rule);
+      }
+    };
+
+    this.handleRuleCancel = () => {
+      this.resetRule();
+      this.hideRuleEdit();
+    };
+
+    this.handleRuleUpdate = (rule) => {
+      rule._id = this.props.rule._id;
+      this.props.onRuleUpdate(rule);
+      this.hideRuleEdit();
+    };
+
+    this.handleRuleStatusChange = () =>{
+      this.props.rule.enabled = this.refs.enabled.checked;
+      this.handleRuleUpdate(this.props.rule);
+    };
+  }
+
+  resetRule() {
     //TODO: reset the rule
-  },
-  showRuleEdit: function() {
-    this.setState({editing: true});
-    this.render();
-  },
-  hideRuleEdit: function() {
-    this.setState({editing: false});
-    this.render();
-  },
-  destroy: function() {
-    if(confirm('Are you sure you want to delete this rule?')) {
-      this.props.onRuleDestroy(this.props.rule);
-    }
-  },
-  getTimes: function() {
+  }
+
+  getTimes() {
     var rule = this.props.rule;
     if(rule.allDay !== true) {
       return (
@@ -55,8 +78,9 @@ var Rule = React.createClass({
         <mark>anytime</mark>
       );
     }
-  },
-  getTimeFilter: function() {
+  }
+
+  getTimeFilter() {
     var daysArray = [];
     var times = this.getTimes();
     var days;
@@ -114,8 +138,9 @@ var Rule = React.createClass({
         {days} {times}
       </span>
     )
-  },
-  getLocation: function() {
+  }
+
+  getLocation() {
     var rule = this.props.rule;
     if(rule.anywhere === true) {
       return (
@@ -126,29 +151,18 @@ var Rule = React.createClass({
         <span>near <mark>{formatAddress(this.props.rule.address)}</mark></span>
       );
     }
-  },
-  getPhone: function() {
+  }
+
+  getPhone() {
     var rule = this.props.rule;
     if(rule.phone) {
       return (
         <span>&nbsp;texts <mark>+{rule.countryCode} {rule.phone}</mark></span>
       );
     }
-  },
-  handleRuleCancel: function() {
-    this.resetRule();
-    this.hideRuleEdit();
-  },
-  handleRuleUpdate: function(rule) {
-    rule._id = this.props.rule._id;
-    this.props.onRuleUpdate(rule);
-    this.hideRuleEdit();
-  },
-  handleRuleStatusChange: function() {
-    this.props.rule.enabled = this.refs.enabled.getDOMNode().checked;
-    this.handleRuleUpdate(this.props.rule);
-  },
-  render: function() {
+  }
+
+  render() {
     var content;
     if(this.state.editing) {
       content = (
@@ -197,14 +211,100 @@ var Rule = React.createClass({
       </div>
     );
   }
-});
+}
 
-var RuleBox = React.createClass({
-  getTimezone: function() {
+class RuleBox extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: []
+    };
+
+    this.handleRuleSubmit = (rule) => {
+      rule.timezone = this.getTimezone();
+
+      $.ajax({
+        url: this.props.url,
+        dataType: 'json',
+        type: 'POST',
+        data: rule,
+        success: function(data) {
+          var rules = this.state.data;
+          rules.push(data);
+
+          this.setState({data: rules});
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error(this.props.url, status, err.toString());
+        }.bind(this)
+      });
+      this.hideRuleForm();
+    };
+
+    this.handleRuleUpdate = (rule) => {
+      rule.timezone = this.getTimezone();
+
+      // update rule optimistically
+      var rules = this.state.data;
+
+      rules.forEach(function(r, idx){
+        if(r._id === rule._id) {
+          rules[idx] = rule;
+        }
+      });
+
+      this.setState({data: rules}, function() {
+        $.ajax({
+          url: this.props.url,
+          dataType: 'json',
+          type: 'PUT',
+          data: rule,
+          error: function(xhr, status, err) {
+            console.error(this.props.url, status, err.toString());
+          }.bind(this)
+        });
+      });
+    };
+
+    this.handleRuleDestroy = (rule) => {
+      // delete rule optimistically
+      var rules = this.state.data;
+      this.setState({
+        data: _.reject(rules, function(r) { return r._id === rule._id;})
+      });
+
+      $.ajax({
+        url: this.props.url,
+        dataType: 'json',
+        type: 'DELETE',
+        data: {_id: rule._id},
+        success: function(data) {
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error(this.props.url, status, err.toString());
+        }.bind(this)
+      });
+    };
+
+    this.handleRuleCancel = () => {
+      this.hideRuleForm();
+    };
+
+    this.showRuleForm = () => {
+      this.setState({showRuleForm: true});
+    };
+
+    this.hideRuleForm = () => {
+      this.setState({showRuleForm: false});
+    };
+  }
+
+  getTimezone() {
     var timezone = jstz.determine();
     return timezone.name();
-  },
-  loadRulesFromServer: function() {
+  }
+
+  loadRulesFromServer() {
     $.ajax({
       url: this.props.url,
       dataType: 'json',
@@ -215,8 +315,9 @@ var RuleBox = React.createClass({
         console.error(this.props.url, status, err.toString());
       }.bind(this)
     });
-  },
-  loadCountsFromServer: function() {
+  }
+
+  loadCountsFromServer() {
     $.ajax({
       url: this.props.countURL,
       dataType: 'json',
@@ -227,87 +328,14 @@ var RuleBox = React.createClass({
         console.error(this.props.countURL, status, err.toString());
       }.bind(this)
     });
-  },
-  handleRuleSubmit: function(rule) {
-    rule.timezone = this.getTimezone();
+  }
 
-    $.ajax({
-      url: this.props.url,
-      dataType: 'json',
-      type: 'POST',
-      data: rule,
-      success: function(data) {
-        var rules = this.state.data;
-        rules.push(data);
-
-        this.setState({data: rules});
-      }.bind(this),
-      error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
-      }.bind(this)
-    });
-    this.hideRuleForm();
-  },
-  handleRuleUpdate: function(rule) {
-    rule.timezone = this.getTimezone();
-
-    // update rule optimistically
-    var rules = this.state.data;
-
-    rules.forEach(function(r, idx){
-      if(r._id === rule._id) {
-        rules[idx] = rule;
-      }
-    });
-
-    this.setState({data: rules}, function() {
-      $.ajax({
-        url: this.props.url,
-        dataType: 'json',
-        type: 'PUT',
-        data: rule,
-        error: function(xhr, status, err) {
-          console.error(this.props.url, status, err.toString());
-        }.bind(this)
-      });
-    });
-  },
-  handleRuleDestroy: function(rule) {
-    // delete rule optimistically
-    var rules = this.state.data;
-    this.setState({
-      data: _.reject(rules, function(r) { return r._id === rule._id;})
-    });
-
-    $.ajax({
-      url: this.props.url,
-      dataType: 'json',
-      type: 'DELETE',
-      data: {_id: rule._id},
-      success: function(data) {
-      }.bind(this),
-      error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
-      }.bind(this)
-    });
-  },
-  handleRuleCancel: function() {
-    this.hideRuleForm();
-  },
-  getInitialState: function() {
-    return {data: []};
-  },
-  componentDidMount: function() {
+  componentDidMount() {
     this.loadRulesFromServer();
     this.loadCountsFromServer();
-  },
-  showRuleForm: function() {
-    this.setState({showRuleForm: true});
-  },
-  hideRuleForm: function() {
-    this.setState({showRuleForm: false});
-  },
-  render: function() {
+  }
+
+  render() {
     if(this.state.error) {
       return (
         <div className="alert alert-danger">{errors[this.state.error] || this.state.error}</div>
@@ -339,20 +367,25 @@ var RuleBox = React.createClass({
       );
     }
   }
-});
+}
 
-var RuleList = React.createClass({
-  handleRuleDestroy: function(rule) {
-    this.props.onRuleDestroy(rule);
-  },
-  handleRuleUpdate: function(rule) {
-    this.props.onRuleUpdate(rule);
-  },
-  render: function() {
-    var self = this;
-    var ruleNodes = this.props.data.map(function(rule, index) {
+class RuleList extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.handleRuleDestroy = (rule) => {
+      this.props.onRuleDestroy(rule);
+    };
+
+    this.handleRuleUpdate = (rule) => {
+      this.props.onRuleUpdate(rule);
+    };
+  }
+
+  render() {
+    var ruleNodes = this.props.data.map((rule, index) => {
       return (
-        <Rule rule={rule} structures={self.props.structures} key={index} onRuleDestroy={self.handleRuleDestroy} onRuleUpdate={self.handleRuleUpdate} />
+        <Rule rule={rule} structures={this.props.structures} key={index} onRuleDestroy={this.handleRuleDestroy} onRuleUpdate={this.handleRuleUpdate} />
       );
     });
     return (
@@ -361,40 +394,92 @@ var RuleList = React.createClass({
       </div>
     );
   }
-});
+}
 
-var RuleForm = React.createClass({
-  getDefaultProps: function() {
-    return { rule: {}, structures: []};
-  },
-  getInitialState: function() {
-    return {
+class RuleForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
       anywhere: this.props.rule.anywhere,
       automaticEvent: (this.props.rule.automaticEvent !== undefined) ? this.props.rule.automaticEvent : 'ignitionOn',
       errors: []
     };
-  },
-  ruleFormIsValid: function(rule) {
+
+    this.handleSubmit = (e) => {
+      e.preventDefault();
+
+      var rule = {
+        enabled: (this.props.isNew === "true") ? true : this.props.rule.enabled,
+        title: this.refs.title.value.trim(),
+        daySunday: this.refs.daySunday.checked,
+        dayMonday: this.refs.dayMonday.checked,
+        dayTuesday: this.refs.dayTuesday.checked,
+        dayWednesday: this.refs.dayWednesday.checked,
+        dayThursday: this.refs.dayThursday.checked,
+        dayFriday: this.refs.dayFriday.checked,
+        daySaturday: this.refs.daySaturday.checked,
+        startTime: this.refs.startTime.value.trim(),
+        endTime: this.refs.endTime.value.trim(),
+        allDay: this.refs.allDay.checked,
+        automaticEvent: this.refs.automaticEvent.value,
+        countryCode: this.refs.countryCode.value,
+        phone: this.refs.phone.value.trim(),
+        message: this.refs.message.value.trim(),
+        includeMap: (this.refs.includeMap) ? this.refs.includeMap.checked : null,
+        address: (this.refs.address) ? this.refs.address.value.trim() : null,
+        latitude: (this.refs.address) ? this.props.rule.latitude : null,
+        longitude: (this.refs.address) ? this.props.rule.longitude : null,
+        radius: (this.refs.radius) ? this.refs.radius.value : null,
+        anywhere: this.refs.anywhere.checked
+      };
+
+      if(!this.ruleFormIsValid(rule)) {
+        return;
+      }
+
+      this.props.onRuleSubmit(rule);
+
+      this.resetRuleFormErrors();
+    };
+
+    this.cancelEdit = () => {
+      this.props.onRuleCancel();
+    };
+
+    this.handleAutomaticEventChange = () => {
+      this.setState({automaticEvent: this.refs.automaticEvent.value});
+    };
+
+    this.handleAnywhereChange = () => {
+      this.setState({anywhere: this.refs.anywhere.checked});
+    };
+
+    this.handleAllDayChange = () => {
+      this.enableTimePicker();
+    };
+  }
+
+  ruleFormIsValid(rule) {
     var isValid = true,
         errors = [];
 
     this.resetRuleFormErrors();
 
     if(!rule.title) {
-      this.refs.title.getDOMNode().parentNode.classList.add('has-error');
+      this.refs.title.parentNode.classList.add('has-error');
       isValid = false;
       errors.push('Title is required');
     }
 
     if(!rule.daySunday && !rule.dayMonday && !rule.dayTuesday && !rule.dayWednesday && !rule.dayThursday && !rule.dayFriday && !rule.daySaturday) {
-      this.refs.daySunday.getDOMNode().parentNode.parentNode.classList.add('has-error');
+      this.refs.daySunday.parentNode.parentNode.classList.add('has-error');
       isValid = false;
       errors.push('Select at least one day of the week');
     }
 
     if(rule.allDay !== true && moment(rule.startTime, 'h:mma') >= moment(rule.endTime, 'h:mma')) {
-      this.refs.startTime.getDOMNode().parentNode.classList.add('has-error');
-      this.refs.endTime.getDOMNode().parentNode.classList.add('has-error');
+      this.refs.startTime.parentNode.classList.add('has-error');
+      this.refs.endTime.parentNode.classList.add('has-error');
       isValid = false;
       errors.push('Start Time must be before End Time');
     }
@@ -402,60 +487,14 @@ var RuleForm = React.createClass({
     this.setState({errors: errors});
 
     return isValid;
-  },
-  resetRuleFormErrors: function() {
-    $('.has-error', this.getDOMNode()).removeClass('has-error');
+  }
+
+  resetRuleFormErrors() {
+    $('.has-error', this).removeClass('has-error');
     this.setState({errors: []});
-  },
-  handleSubmit: function(e) {
-    e.preventDefault();
+  }
 
-    var rule = {
-      enabled: (this.props.isNew === "true") ? true : this.props.rule.enabled,
-      title: this.refs.title.getDOMNode().value.trim(),
-      daySunday: this.refs.daySunday.getDOMNode().checked,
-      dayMonday: this.refs.dayMonday.getDOMNode().checked,
-      dayTuesday: this.refs.dayTuesday.getDOMNode().checked,
-      dayWednesday: this.refs.dayWednesday.getDOMNode().checked,
-      dayThursday: this.refs.dayThursday.getDOMNode().checked,
-      dayFriday: this.refs.dayFriday.getDOMNode().checked,
-      daySaturday: this.refs.daySaturday.getDOMNode().checked,
-      startTime: this.refs.startTime.getDOMNode().value.trim(),
-      endTime: this.refs.endTime.getDOMNode().value.trim(),
-      allDay: this.refs.allDay.getDOMNode().checked,
-      automaticEvent: this.refs.automaticEvent.getDOMNode().value,
-      countryCode: this.refs.countryCode.getDOMNode().value,
-      phone: this.refs.phone.getDOMNode().value.trim(),
-      message: this.refs.message.getDOMNode().value.trim(),
-      includeMap: (this.refs.includeMap) ? this.refs.includeMap.getDOMNode().checked : null,
-      address: (this.refs.address) ? this.refs.address.getDOMNode().value.trim() : null,
-      latitude: (this.refs.address) ? this.props.rule.latitude : null,
-      longitude: (this.refs.address) ? this.props.rule.longitude : null,
-      radius: (this.refs.radius) ? this.refs.radius.getDOMNode().value : null,
-      anywhere: this.refs.anywhere.getDOMNode().checked
-    };
-
-    if(!this.ruleFormIsValid(rule)) {
-      return;
-    }
-
-    this.props.onRuleSubmit(rule);
-
-    this.resetRuleFormErrors();
-  },
-  cancelEdit: function() {
-    this.props.onRuleCancel();
-  },
-  handleAutomaticEventChange: function() {
-    this.setState({automaticEvent: this.refs.automaticEvent.getDOMNode().value});
-  },
-  handleAnywhereChange: function() {
-    this.setState({anywhere: this.refs.anywhere.getDOMNode().checked});
-  },
-  handleAllDayChange: function() {
-    this.enableTimePicker();
-  },
-  render: function() {
+  render() {
     if(this.state.anywhere !== true) {
       var locationForm = (
         <div>
@@ -793,21 +832,19 @@ var RuleForm = React.createClass({
         </div>
       </form>
     );
-  },
-  enableLocationPicker: function() {
-    if(this.refs.addressMap) {
-      var addressInput = this.refs.address.getDOMNode(),
-          addressMap = this.refs.addressMap.getDOMNode();
+  }
 
-      $(addressMap).locationpicker({
+  enableLocationPicker() {
+    if(this.refs.addressMap) {
+      $(this.refs.addressMap).locationpicker({
         location: {
           latitude: this.props.rule.latitude || 37.762275,
           longitude: this.props.rule.longitude || -122.410785
         },
-        radius: this.refs.radius.getDOMNode().value,
+        radius: this.refs.radius.value,
         inputBinding: {
-          radiusInput: $(this.refs.radius.getDOMNode()),
-          locationNameInput: $(addressInput)
+          radiusInput: $(this.refs.radius),
+          locationNameInput: $(this.refs.address)
         },
         enableAutocomplete: true,
         enableAutocompleteBlur: true,
@@ -818,31 +855,36 @@ var RuleForm = React.createClass({
         }, this)
       });
 
-      $(addressInput).keypress(function(event) {
+      $(this.refs.address).keypress(function(event) {
         return event.keyCode != 13;
       });
     }
+  }
 
-  },
-  enableTimePicker: function() {
-    $('.ui-timepicker-select', this.getDOMNode())
-      .prop('disabled', this.refs.allDay.getDOMNode().checked)
+  enableTimePicker() {
+    $('.ui-timepicker-select', ReactDOM.findDOMNode(this))
+      .prop('disabled', this.refs.allDay.checked)
       .addClass('form-control');
+  }
 
-  },
-  componentDidMount: function() {
-    $('.start-time, .end-time', this.getDOMNode()).timepicker({useSelect: true});
+  componentDidMount() {
+    $('.start-time, .end-time', ReactDOM.findDOMNode(this)).timepicker({useSelect: true});
 
     this.enableTimePicker();
 
     this.enableLocationPicker();
-  },
-  componentDidUpdate: function() {
+  }
+
+  componentDidUpdate() {
     this.enableLocationPicker();
   }
-});
+}
+RuleForm.defaultProps = {
+  rule: {},
+  structures: []
+};
 
-React.render(
+ReactDOM.render(
   <RuleBox url="/api/rules/" countURL="/api/counts" />,
   document.getElementById('content')
 );

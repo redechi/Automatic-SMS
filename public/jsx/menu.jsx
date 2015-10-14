@@ -1,5 +1,7 @@
 var React = require('react');
-var $ = jQuery = require('jquery');
+var ReactDOM = require('react-dom');
+var $ = require('jquery');
+window.jQuery = $;
 
 require('bootstrap-sass');
 
@@ -17,8 +19,15 @@ $('body').on('click', function(e) {
   });
 });
 
-var Menu = React.createClass({
-  loadUserFromServer: function() {
+class Menu extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      first_name: 'User'
+    };
+  }
+
+  loadUserFromServer() {
     $.ajax({
       url: this.props.url,
       dataType: 'json',
@@ -26,14 +35,15 @@ var Menu = React.createClass({
         if(!data || data.error || !data.first_name) {
           data = {first_name: 'User'};
         }
-        this.setProps(data);
+        this.setState(data);
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
       }.bind(this)
     });
-  },
-  componentDidMount: function() {
+  }
+
+  componentDidMount() {
     this.loadUserFromServer();
 
     //enable popovers
@@ -49,11 +59,12 @@ var Menu = React.createClass({
     $('.top-menu').on('click', '#disconnect', function() {
       return confirm('Are you sure you want to disconnect your account? This will delete all existing rules.');
     });
-  },
-  render: function() {
+  }
+
+  render() {
     return (
       <div className="user-menu" data-toggle="popover">
-        <span className="user-name">{this.props.first_name}</span>
+        <span className="user-name">{this.state.first_name}</span>
         <i className="fa fa-angle-down fa-lg"></i>
 
         <div className="popover-template">
@@ -74,9 +85,9 @@ var Menu = React.createClass({
       </div>
     );
   }
-});
+}
 
-React.render(
+ReactDOM.render(
   <Menu url="/api/user/" />,
   document.getElementById('top-menu')
 );
