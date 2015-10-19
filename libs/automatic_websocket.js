@@ -199,7 +199,6 @@ function findRules(event, automaticEvent) {
 
 
 function lookupRule(event) {
-  var ignoreAfter = 15 * 60 * 1000; // 15 minutes
   var resetAfter = 60 * 60 * 1000; //1 hour
 
   if(!event.user) {
@@ -210,7 +209,7 @@ function lookupRule(event) {
   var event_id = event.id;
   var type = event.type;
 
-  if((Date.now() - event.created_at) > ignoreAfter) {
+  if(moment().subtract(15, 'minutes').isAfter(moment(event.created_at))) {
     return debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' ignored as it was over 15 minutes old');
   }
 
