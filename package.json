@@ -75,7 +75,7 @@
     "connect-livereload": "0.5.3",
     "gulp-jshint": "1.11.2",
     "gulp-livereload": "3.8.1",
-    "gulp-scss-lint": "0.3.6",
+    "gulp-sass-lint": "1.0.1",
     "nodemon": "1.7.1"
   },
   "jshintConfig": {
