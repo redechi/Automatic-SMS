@@ -1,15 +1,12 @@
 var gulp = require('gulp');
 var source = require('vinyl-source-stream');
 var watchify = require('watchify');
-var babelify = require('babelify');
 var browserify = require('browserify');
-var reactify = require('reactify');
 var plugins = require('gulp-load-plugins')();
 
 
 var bundler = watchify(browserify('./public/javascripts/index.js', watchify.args)
-  .transform(babelify)
-  .transform(reactify));
+  .transform('babelify', {presets: ['es2015', 'react']}));
 bundler.on('update', bundle);
 bundler.on('log', plugins.util.log);
 
@@ -91,8 +88,7 @@ gulp.task('js:develop', ['jshint'], function() {
 
 gulp.task('js:compress', function() {
   browserify('./public/javascripts/index.js')
-    .transform(babelify)
-    .transform(reactify)
+    .transform('babelify', {presets: ['es2015', 'react']})
     .bundle()
     .pipe(source('index.js'))
     .pipe(plugins.streamify(plugins.uglify()))
@@ -102,7 +98,7 @@ gulp.task('js:compress', function() {
     .pipe(gulp.dest('./public/dest'));
 
   browserify('./public/javascripts/share.js')
-    .transform(babelify)
+    .transform('babelify', {presets: ['es2015', 'react']})
     .bundle()
     .pipe(source('share.js'))
     .pipe(plugins.streamify(plugins.uglify()))
