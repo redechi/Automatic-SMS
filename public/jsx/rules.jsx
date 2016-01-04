@@ -4,7 +4,7 @@ var $ = require('jquery');
 var moment = require('moment-timezone');
 var _ = require('underscore');
 var classNames = require('classnames');
-var jstz = require('jstimezonedetect').jstz;
+var jstz = require('jstimezonedetect');
 
 require('jquery-locationpicker');
 require('timepicker');
