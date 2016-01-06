@@ -26,7 +26,7 @@
     cursor: pointer;
     margin-left: 0;
 
-    input:checked ~ a {
+    input:checked ~ span a {
       background-color: #70c66b;
     }
   }

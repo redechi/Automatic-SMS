@@ -183,13 +183,12 @@ class Rule extends React.Component {
           })}>
             <div className="rule-status">
               <label className="switch-light switch-candy" onClick={this.handleRuleStatusChange}>
-              <input type="checkbox" ref="enabled" title="Enabled" defaultChecked={rule.enabled} key={rule._id} />
-              <span>
-                <span>Off</span>
-                <span>On</span>
-              </span>
-
-              <a></a>
+                <input type="checkbox" ref="enabled" title="Enabled" defaultChecked={rule.enabled} key={rule._id} />
+                <span>
+                  <span>Off</span>
+                  <span>On</span>
+                  <a></a>
+                </span>
               </label>
             </div>
             <h3 className="title">
