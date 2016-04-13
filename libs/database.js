@@ -4,7 +4,6 @@ var defaults = require('./defaults');
 var helpers = require('./helpers');
 var db = monk(process.env.MONGOLAB_URI || 'mongodb://127.0.0.1:27017/automaticsms');
 
-var carState = db.get('carState');
 var counts = db.get('counts');
 var rules = db.get('rules');
 var shares = db.get('shares');
@@ -100,31 +99,6 @@ exports.incrementCounts = function(automatic_id) {
     {automatic_id: automatic_id, month: month.toDate()},
     {$inc: {count: 1}},
     {upsert: true}
-  );
-};
-
-
-exports.getCarState = function(automatic_id, cb) {
-  carState.findOne({automatic_id: automatic_id}, cb);
-};
-
-
-exports.setCarState = function(event, cb) {
-  var automatic_id = event.user.id;
-  var type = event.type;
-  var ts = moment(event.created_at).valueOf();
-
-  carState.findAndModify(
-    {automatic_id: automatic_id},
-    {
-      $set: {
-        event: type,
-        automatic_id: automatic_id,
-        ts: ts
-      }
-    },
-    {upsert: true},
-    cb
   );
 };
 

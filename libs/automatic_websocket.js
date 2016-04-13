@@ -210,63 +210,12 @@ function lookupRule(event) {
   var type = event.type;
 
   if(moment().subtract(15, 'minutes').isAfter(moment(event.created_at))) {
-    return debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' ignored as it was over 15 minutes old');
+    debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' ignored as it was over 15 minutes old');
+  } else if(type === 'ignition:on') {
+    debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' triggered from ignition:on');
+    findRules(event, 'ignitionOn');
+  } else if(type === 'ignition:off') {
+    debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' triggered from ignition:off');
+    findRules(event, 'ignitionOff');
   }
-
-  db.getCarState(automatic_id, function(e, state) {
-    if(e) return next(e);
-
-    if(!state) {
-      debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' triggered due to lack of initial state');
-      db.setCarState(event, function(e) {
-        if(e) return next(e);
-        var automaticEvent = getAutomaticEvent(type);
-        if(automaticEvent) {
-          findRules(event, automaticEvent);
-        }
-      });
-    } else if(type === 'ignition:on') {
-      db.setCarState(event, function(e) {
-        if(e) return next(e);
-        if(state.event === 'location:updated') {
-          debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' ignored due to previous location:updated event');
-        } else {
-          debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' triggered from ignition:on with no previous location:updated');
-          findRules(event, 'ignitionOn');
-        }
-      });
-    } else if(type === 'location:updated') {
-      db.setCarState(event, function(e) {
-        if(e) return next(e);
-        if(state.event === 'ignition:on') {
-          debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' ignored due to previous ignition:on event');
-        } else if(state.event === 'location:updated' && (Date.now() - state.ts) < resetAfter) {
-          debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' ignored due to previous location:updated event less than 1 hour ago');
-        } else {
-          debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' triggered from location:updated with no previous ignition:on');
-          findRules(event, 'ignitionOn');
-        }
-      });
-    } else if(type === 'ignition:off') {
-      db.setCarState(event, function(e) {
-        if(e) return next(e);
-        if(state.event === 'trip:finished') {
-          debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' ignored due to previous trip:finished event');
-        } else {
-          debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' triggered from ignition:off with no previous trip:finished');
-          findRules(event, 'ignitionOff');
-        }
-      });
-    } else if(type === 'trip:finished') {
-      db.setCarState(event, function(e) {
-        if(e) return next(e);
-        if(state.event === 'ignition:off') {
-          debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' ignored due to previous ignition:off event');
-        } else {
-          debug('[' + automatic_id + '][' + event_id + '][carState] ' + type + ' triggered from trip:finished with no previous ignition:off');
-          findRules(event, 'ignitionOff');
-        }
-      });
-    }
-  });
 }
