@@ -75,7 +75,7 @@ gulp.task('scss:compile', ['fonts:copy'], function() {
 
 gulp.task('css:minify', ['scss:compile'], function() {
   gulp.src('./public/css/*.css')
-    .pipe(plugins.minifyCss())
+    .pipe(plugins.cleanCss())
     .pipe(gulp.dest('./public/css'));
 });
 
