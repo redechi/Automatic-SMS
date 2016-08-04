@@ -5,27 +5,25 @@ html(lang="en")
     meta(http-equiv="content-type" content="text/html; charset=utf-8")
     meta(http-equiv="X-UA-Compatible" content="chrome=1")
     meta(name="viewport" content="width=device-width, initial-scale=1")
-    
+
     link(rel="stylesheet" type="text/css" href="/css/mapbox/style.css")
     link(rel="stylesheet" type="text/css" href="/css/style.css" media="screen")
-      
+
   body
     .main-header
       .wrapper
         a.automatic-logo(href="http://automatic.com")
-        .location-title 
+        .location-title
           .plus +
           span Location
 
     .map-wrapper
       #map.map
       #alert.alert
-        
-  
+
+
     script.
       var mapboxAccessToken = '#{mapboxAccessToken}';
       var shareId = '#{shareId}';
 
     script(src="/dest/share.js")
-
-  

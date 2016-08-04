@@ -1,125 +1,107 @@
-var monk = require('monk');
-var moment = require('moment');
-var defaults = require('./defaults');
-var helpers = require('./helpers');
-var db = monk(process.env.MONGOLAB_URI || 'mongodb://127.0.0.1:27017/automaticsms');
+const monk = require('monk');
+const moment = require('moment');
+const defaults = require('./defaults');
+const helpers = require('./helpers');
+const db = monk(process.env.MONGOLAB_URI || 'mongodb://127.0.0.1:27017/automaticsms');
 
-var counts = db.get('counts');
-var rules = db.get('rules');
-var shares = db.get('shares');
-var users = db.get('users');
+const counts = db.get('counts');
+const rules = db.get('rules');
+const shares = db.get('shares');
+const users = db.get('users');
 
-
-exports.getUser = function(automatic_id, cb) {
-  users.findOne({automatic_id: automatic_id}, cb);
-};
-
-
-exports.saveUser = function(user, cb) {
-  users.findAndModify(
+exports.saveUser = (user) => {
+  return users.findOneAndUpdate(
     {automatic_id: user.automatic_id},
     {$set: user},
-    {upsert: true},
-    function(e, user) {
-      if(e) return cb(e);
-      if(!user.created_at) {
-        //user is new, add created_at and insert some default rules
-        users.update({_id: user._id}, {$set: {created_at: moment().valueOf()}}, function(e) {
-          var defaultRules = defaults.defaultRules(user.automatic_id);
-          rules.insert(defaultRules, function(e) {
-            cb(e, user);
+    {upsert: true, returnNewDocument: true}
+  )
+    .then((result) => {
+      if (!result.created_at) {
+        // User is new, add created_at and insert some default rules
+        return users.update({_id: result._id}, {$set: {created_at: moment().valueOf()}})
+          .then(() => {
+            const defaultRules = defaults.defaultRules(result.automatic_id);
+            return rules.insert(defaultRules);
           });
-        });
-      } else {
-        cb(e, user);
       }
+
+      return result;
     }
   );
 };
 
 
-exports.destroyUser = function(automatic_id, cb) {
-  users.remove({automatic_id: automatic_id}, function(e) {
-    if(e) return cb(e);
-    rules.remove({automatic_id: automatic_id}, function(e) {
-      if(e) return cb(e);
-      counts.remove({automatic_id: automatic_id}, cb);
+exports.destroyUser = (automaticId) => {
+  return users.remove({automatic_id: automaticId})
+    .then(() => {
+      return rules.remove({automatic_id: automaticId});
+    })
+    .then(() => {
+      return counts.remove({automatic_id: automaticId});
     });
-  });
 };
 
 
-exports.getRules = function(automatic_id, cb) {
-  rules.find({automatic_id: automatic_id}, {sort: {_id: 1}}, cb);
+exports.getRules = (automaticId) => {
+  return rules.find({automatic_id: automaticId}, {sort: {_id: 1}});
 };
 
 
-exports.getRule = function(rule_id, cb) {
-  rules.findById(rule_id, cb);
+exports.getActiveRules = (automaticId) => {
+  return rules.find({automatic_id: automaticId, enabled: true}, {sort: {_id: 1}});
 };
 
 
-exports.getActiveRules = function(automatic_id, cb) {
-  rules.find({automatic_id: automatic_id, enabled: true}, {sort: {_id: 1}}, cb);
+exports.createRule = (rule) => {
+  return rules.insert(rule);
 };
 
 
-exports.createRule = function(rule, cb) {
-  rules.insert(rule, cb);
-};
-
-
-exports.updateRule = function(rule_id, automatic_id, rule, cb) {
-  rules.findAndModify(
-    {_id: rule_id, automatic_id: automatic_id},
-    {$set: rule},
-    cb
+exports.updateRule = (ruleId, automaticId, rule) => {
+  return rules.findOneAndUpdate(
+    {_id: ruleId, automatic_id: automaticId},
+    {$set: rule}
   );
 };
 
 
-exports.destroyRule = function(rule_id, automatic_id, cb) {
-  rules.remove({_id: rule_id, automatic_id: automatic_id}, cb);
+exports.destroyRule = (ruleId, automaticId) => {
+  return rules.remove({_id: ruleId, automatic_id: automaticId});
 };
 
 
-exports.logRuleTrigger = function(rule_id) {
-  rules.update({_id: rule_id}, {$inc: {count: 1}});
+exports.getRecentCount = (automaticId) => {
+  return counts.findOne({automatic_id: automaticId}, {sort: {month: -1}});
 };
 
 
-exports.getRecentCount = function(automatic_id, cb) {
-  counts.findOne({automatic_id: automatic_id}, {sort: {month: -1}}, cb);
-};
-
-
-exports.incrementCounts = function(automatic_id) {
-  var month = moment().startOf('month');
-  counts.findAndModify(
-    {automatic_id: automatic_id, month: month.toDate()},
+exports.incrementCounts = (automaticId) => {
+  const month = moment().startOf('month');
+  return counts.findOneAndUpdate(
+    {automatic_id: automaticId, month: month.toDate()},
     {$inc: {count: 1}},
     {upsert: true}
   );
 };
 
 
-exports.getShare = function(share_id, cb) {
-  shares.findOne({
-    share_id: share_id,
+exports.getShare = (shareId) => {
+  return shares.findOne({
+    share_id: shareId,
     expires: {$gte: new Date()}
-  }, cb);
+  });
 };
 
 
-exports.createShare = function(share, cb) {
-  // force expiration after 12 hours
+exports.createShare = (share) => {
+  // Force expiration after 12 hours
   share.expires = moment().add(12, 'hours').toDate();
   share.share_id = helpers.randomAlphanumeric(8);
 
-  shares.insert(share, cb);
+  return shares.insert(share);
 };
 
 
-exports.deleteShare = function(automatic_id, cb) {
-  shares.remove({automatic_id: automatic_id}, cb);
+exports.deleteShare = (automaticId) => {
+  return shares.remove({automatic_id: automaticId});
 };

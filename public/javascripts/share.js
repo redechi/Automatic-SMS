@@ -1,5 +1,5 @@
-var moment = require('moment-timezone');
-var $ = require('jquery');
+const moment = require('moment-timezone');
+const $ = require('jquery');
 window.jQuery = $;
 
 require('mapbox.js');
@@ -9,21 +9,21 @@ require('bootstrap-sass');
 // Setup mapbox
 L.mapbox.accessToken = mapboxAccessToken;
 
-var map = L.mapbox.map('map', 'automatic.h5kpm228', {
+const map = L.mapbox.map('map', 'automatic.h5kpm228', {
   maxZoom: 16
 }).setView([37.9, -122.5], 10);
 
-var geocoder = L.mapbox.geocoder('mapbox.places');
-var markers = [];
-var previousMarker;
-var bounds;
-var markerLayer = L.mapbox.featureLayer().addTo(map);
-var icon = L.mapbox.marker.icon({
+const geocoder = L.mapbox.geocoder('mapbox.places');
+const markers = [];
+let previousMarker;
+let bounds;
+const markerLayer = L.mapbox.featureLayer().addTo(map);
+const icon = L.mapbox.marker.icon({
   'marker-size': 'small',
   'marker-color': '#38BE43',
   'marker-symbol': 'circle'
 });
-var iconLatest = L.mapbox.marker.icon({
+const iconLatest = L.mapbox.marker.icon({
   'marker-size': 'small',
   'marker-color': '#E74A4A',
   'marker-symbol': 'circle'
@@ -31,23 +31,23 @@ var iconLatest = L.mapbox.marker.icon({
 
 
 /* Web socket connection */
-var ws = new WebSocket((window.document.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.document.location.host);
-ws.onopen = function () {
+const ws = new WebSocket((window.document.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.document.location.host);
+ws.onopen = () => {
   updateAlert('Connected', 'Waiting for location');
 
-  // if a shared page, send shareId
-  if(window.shareId) {
+  // If a shared page, send shareId
+  if (window.shareId) {
     ws.send(JSON.stringify({shareId: shareId}));
   }
 };
 
-ws.onclose = function (event) {
+ws.onclose = (event) => {
   updateAlert('Disconnected', event.reason);
 };
 
-ws.onmessage = function (msg) {
-  var data = JSON.parse(msg.data);
-  var description = [];
+ws.onmessage = (msg) => {
+  const data = JSON.parse(msg.data);
+  const description = [];
 
   console.log(data);
 
@@ -56,18 +56,18 @@ ws.onmessage = function (msg) {
   }
 
   if (data.location) {
-    var location = {
+    const location = {
       lat: parseFloat(data.location.lat),
       lon: parseFloat(data.location.lon)
     };
-    var marker = addMarker(location);
+    const marker = addMarker(location);
 
-    geocoder.reverseQuery(location, function(e, response) {
+    geocoder.reverseQuery(location, (e, response) => {
       if (e) {
         console.error(e);
       }
 
-      var locationName = formatLocation(response);
+      const locationName = formatLocation(response);
 
       if (locationName) {
         description.push('<b>' + locationName + '</b>');
@@ -85,19 +85,19 @@ ws.onmessage = function (msg) {
 };
 
 
-setInterval(function () {
+setInterval( () => {
   ws.send('ping');
 }, 15000);
 
 
 function addMarker(location) {
-  var marker = L.marker(location, {
+  const marker = L.marker(location, {
     icon: iconLatest
   });
 
   marker.addTo(markerLayer);
 
-  //change previous marker to standard Icon
+  // Change previous marker to standard Icon
   if (previousMarker) {
     previousMarker.setIcon(icon);
     drawLine(previousMarker, marker);
@@ -120,15 +120,13 @@ function addMarker(location) {
 
 
 function drawLine(marker1, marker2) {
-  var lineStyle = {
+  const lineStyle = {
     color: '#5DBEF5',
     opacity: 1,
     weight: 4
   };
   L.polyline([marker1.getLatLng(), marker2.getLatLng()], lineStyle).addTo(map);
 }
-
-
 
 function updateAlert(title, message) {
   $('#alert')
@@ -146,12 +144,7 @@ function hideAlert() {
 function formatLocation(response) {
   try {
     return response.features[0].place_name;
-  } catch(e) {
+  } catch (e) {
     return '';
   }
-}
-
-
-function metersToMiles(distance_m) {
-  return distance_m / 1609.34;
 }

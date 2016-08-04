@@ -1,16 +1,16 @@
-var gulp = require('gulp');
-var source = require('vinyl-source-stream');
-var watchify = require('watchify');
-var browserify = require('browserify');
-var plugins = require('gulp-load-plugins')();
+const gulp = require('gulp');
+const source = require('vinyl-source-stream');
+const watchify = require('watchify');
+const browserify = require('browserify');
+const plugins = require('gulp-load-plugins')();
 
 
-var bundler = watchify(browserify('./public/javascripts/index.js', watchify.args)
+const bundler = watchify(browserify('./public/javascripts/index.js', watchify.args)
   .transform('babelify', {presets: ['es2015', 'react']}));
 bundler.on('update', bundle);
 bundler.on('log', plugins.util.log);
 
-var shareBundler = watchify(browserify('./public/javascripts/share.js', watchify.args)).on('update', shareBundle);
+const shareBundler = watchify(browserify('./public/javascripts/share.js', watchify.args)).on('update', shareBundle);
 
 
 function bundle() {
@@ -40,14 +40,7 @@ function shareBundle() {
 }
 
 
-gulp.task('jshint', function() {
-  return gulp.src('./public/javascripts/**/*.js')
-    .pipe(plugins.jshint())
-    .pipe(plugins.jshint.reporter('default'));
-});
-
-
-gulp.task('scss:lint', function() {
+gulp.task('scss:lint', () => {
   gulp.src('./public/scss/**/*.scss')
     .pipe(plugins.sassLint())
     .pipe(plugins.sassLint.format())
@@ -55,9 +48,9 @@ gulp.task('scss:lint', function() {
 });
 
 
-gulp.task('scss:compileDev', function() {
+gulp.task('scss:compileDev', () => {
   gulp.src('./public/scss/**/*.scss')
-    //build sourcemaps
+    // Build sourcemaps
     .pipe(plugins.sourcemaps.init())
     .pipe(plugins.sass({errLogToConsole: true}))
     .pipe(plugins.sourcemaps.write())
@@ -66,27 +59,27 @@ gulp.task('scss:compileDev', function() {
 });
 
 
-gulp.task('scss:compile', ['fonts:copy'], function() {
+gulp.task('scss:compile', ['fonts:copy'], () => {
   gulp.src('./public/scss/**/*.scss')
     .pipe(plugins.sass({errLogToConsole: true}))
     .pipe(gulp.dest('./public/css'));
 });
 
 
-gulp.task('css:minify', ['scss:compile'], function() {
+gulp.task('css:minify', ['scss:compile'], () => {
   gulp.src('./public/css/*.css')
     .pipe(plugins.cleanCss())
     .pipe(gulp.dest('./public/css'));
 });
 
 
-gulp.task('js:develop', ['jshint'], function() {
+gulp.task('js:develop', () => {
   bundle();
   shareBundle();
 });
 
 
-gulp.task('js:compress', function() {
+gulp.task('js:compress', () => {
   browserify('./public/javascripts/index.js')
     .transform('babelify', {presets: ['es2015', 'react']})
     .bundle()
@@ -112,13 +105,13 @@ gulp.task('js:compress', function() {
 gulp.task('scss:develop', ['scss:lint', 'scss:compileDev']);
 
 
-gulp.task('fonts:copy', function() {
+gulp.task('fonts:copy', () => {
   gulp.src(['./node_modules/font-awesome/fonts/*', './node_modules/bootstrap-sass/assets/fonts/bootstrap/*'])
     .pipe(gulp.dest('./public/dest/fonts'));
 });
 
 
-gulp.task('css:copy', function() {
+gulp.task('css:copy', () => {
   gulp.src('./node_modules/css-toggle-switch/dist/**/*')
     .pipe(gulp.dest('./public/css/css-toggle-switch'));
 
@@ -126,14 +119,14 @@ gulp.task('css:copy', function() {
     .pipe(gulp.dest('./public/css/mapbox'));
 });
 
-gulp.task('develop', function() {
+gulp.task('develop', () => {
   plugins.livereload.listen();
 
   require('nodemon')({
     script: 'bin/www',
     stdout: true
-  }).on('readable', function() {
-    this.stdout.on('data', function(chunk) {
+  }).on('readable', () => {
+    this.stdout.on('data', (chunk) => {
       if (/^listening/.test(chunk)) {
         plugins.livereload.reload();
       }

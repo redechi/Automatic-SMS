@@ -34,7 +34,6 @@ rules:
     - include: true
   mixins-before-declarations: 1
   nesting-depth: 0
-  no-color-keyword: 1
   no-color-literals: 0
   no-css-comments: 1
   no-debug: 1

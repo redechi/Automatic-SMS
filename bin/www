@@ -1,23 +1,23 @@
 #!/usr/bin/env node
-var debug = require('debug')('automaticsms');
-var nconf = require('nconf');
+const debug = require('debug')('automaticsms');
+const nconf = require('nconf');
 
 nconf
   .argv()
   .env()
-  .file({file:'./config.json'});
+  .file({ file: './config.json'});
 
-var app = require('../app');
-var websocket = require('../libs/browser_websocket');
+const app = require('../app');
+const websocket = require('../libs/browser_websocket');
 
 app.set('port', process.env.PORT || 3000);
 
-var server = app.listen(app.get('port'), function() {
-  debug('Express server listening on port ' + server.address().port);
+const server = app.listen(app.get('port'), () => {
+  debug(`Express server listening on port ${server.address().port}`);
 });
 
-var WebSocketServer = require('ws').Server;
-var wss = new WebSocketServer({server: server});
+const WebSocketServer = require('ws').Server;
+const wss = new WebSocketServer({server: server});
 app.set('wss', wss);
 
 websocket.setupClientWebsocket(app);

@@ -1,17 +1,17 @@
-var React = require('react');
-var ReactDOM = require('react-dom');
-var $ = require('jquery');
+const React = require('react');
+const ReactDOM = require('react-dom');
+const $ = require('jquery');
 window.jQuery = $;
 
 require('bootstrap-sass');
 
-//only allow one popover at a time, close popovers when a user clicks off
-$('body').on('click', function(e) {
-  $('[data-toggle="popover"]').siblings('.popover').each(function() {
-    var $popover = $(this).siblings('[data-toggle="popover"]');
+// Only allow one popover at a time, close popovers when a user clicks off
+$('body').on('click', (e) => {
+  $('[data-toggle="popover"]').siblings('.popover').each(() => {
+    const $popover = $(this).siblings('[data-toggle="popover"]');
 
-    //don't close popover if clicking on itself
-    if($popover.has(e.target).length !== 0 || $('.popover').has(e.target).length !== 0) {
+    // Don't close popover if clicking on itself
+    if ($popover.has(e.target).length !== 0 || $('.popover').has(e.target).length !== 0) {
       return;
     }
 
@@ -27,36 +27,20 @@ class Menu extends React.Component {
     };
   }
 
-  loadUserFromServer() {
-    $.ajax({
-      url: this.props.url,
-      dataType: 'json',
-      success: function(data) {
-        if(!data || data.error || !data.first_name) {
-          data = {first_name: 'User'};
-        }
-        this.setState(data);
-      }.bind(this),
-      error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
-      }.bind(this)
-    });
-  }
-
   componentDidMount() {
     this.loadUserFromServer();
 
-    //enable popovers
+    // Enable popovers
     $('.user-menu')
       .popover('destroy')
       .popover({
         html: true,
-        content: function() { return $('.user-menu .popover-template').html(); },
+        content: () => { return $('.user-menu .popover-template').html(); },
         placement: 'bottom',
         viewport: '.wrapper'
       });
 
-    $('.top-menu').on('click', '#disconnect', function() {
+    $('.top-menu').on('click', '#disconnect', () => {
       return confirm('Are you sure you want to disconnect your account? This will delete all existing rules.');
     });
   }
@@ -85,7 +69,27 @@ class Menu extends React.Component {
       </div>
     );
   }
+
+  loadUserFromServer() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      success: (data) => {
+        if (!data || data.error || !data.first_name) {
+          data = {first_name: 'User'};
+        }
+        this.setState(data);
+      },
+      error: (xhr, status, err) => {
+        console.error(this.props.url, status, err.toString());
+      }
+    });
+  }
 }
+
+Menu.propTypes = {
+  url: React.PropTypes.string
+};
 
 ReactDOM.render(
   <Menu url="/api/user/" />,

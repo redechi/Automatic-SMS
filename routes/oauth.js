@@ -1,9 +1,9 @@
-var request = require('request'),
-    nconf = require('nconf'),
-    db = require('../libs/database');
+const request = require('request');
+const nconf = require('nconf');
+const db = require('../libs/database');
 
 
-var oauth2 = require('simple-oauth2')({
+const oauth2 = require('simple-oauth2')({
   clientID: nconf.get('AUTOMATIC_CLIENT_ID'),
   clientSecret: nconf.get('AUTOMATIC_CLIENT_SECRET'),
   site: 'https://accounts.automatic.com',
@@ -11,42 +11,44 @@ var oauth2 = require('simple-oauth2')({
 });
 
 
-var authorization_uri = oauth2.authCode.authorizeURL({
+const authorizationUri = oauth2.authCode.authorizeURL({
   scope: 'scope:public scope:user:profile scope:location scope:current_location scope:vehicle:profile scope:vehicle:events scope:trip scope:behavior'
 });
 
 
-exports.authorize = function(req, res, next) {
-  res.redirect(authorization_uri);
+exports.authorize = (req, res, next) => {
+  res.redirect(authorizationUri);
 };
 
 
-exports.logout = function(req, res, next) {
+exports.logout = (req, res, next) => {
   req.session.destroy();
   res.redirect('/');
 };
 
 
-exports.disconnect = function(req, res, next) {
-  db.destroyUser(req.session.automatic_id, function() {
-    req.session.destroy();
-    res.redirect('/');
-  });
+exports.disconnect = (req, res, next) => {
+  db.destroyUser(req.session.automatic_id)
+    .then(() => {
+      req.session.destroy();
+      res.redirect('/');
+    })
+    .catch(next);
 };
 
 
-exports.redirect = function(req, res, next) {
-  if(req.query.denied === 'true') {
+exports.redirect = (req, res, next) => {
+  if (req.query.denied === 'true') {
     return res.render('index', {alert: 'User denied access to Automatic'});
   }
 
   oauth2.authCode.getToken({
     code: req.query.code
-  }, function(e, result) {
-    if(e) return next(e);
+  }, (e, result) => {
+    if (e) return next(e);
 
     // Attach `token` to the user's session for later use
-    var token = oauth2.accessToken.create(result);
+    const token = oauth2.accessToken.create(result);
 
     req.session.access_token = token.token.access_token;
 
@@ -55,22 +57,21 @@ exports.redirect = function(req, res, next) {
       uri: 'https://api.automatic.com/user/me/',
       headers: {Authorization: 'bearer ' + req.session.access_token},
       json: true
-    }, function(e, r, body) {
+    }, (e, r, body) => {
       if (e) return next(e);
 
       req.session.automatic_id = body.id;
 
-      var user = {
+      const user = {
         automatic_access_token: token.token.access_token,
         automatic_refresh_token: token.token.refresh_token,
         automatic_expires_at: token.token.expires_at,
         automatic_id: req.session.automatic_id
       };
 
-      db.saveUser(user, function(e, user) {
-        if(e) return next(e);
-        res.redirect('/');
-      });
+      db.saveUser(user)
+        .then(() => res.redirect('/'))
+        .catch(next);
     });
   });
 };

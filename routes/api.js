@@ -1,8 +1,6 @@
-var request = require('request'),
-    db = require('../libs/database'),
-    helpers = require('../libs/helpers'),
-    _ = require('underscore'),
-    apiURL = 'https://api.automatic.com';
+const request = require('request');
+const db = require('../libs/database');
+const apiURL = 'https://api.automatic.com';
 
 
 function formatRule(req) {
@@ -35,57 +33,51 @@ function formatRule(req) {
 }
 
 
-exports.user = function(req, res, next) {
+exports.user = (req, res, next) => {
   request.get({
-    uri: apiURL + '/user/me',
-    headers: {Authorization: 'bearer ' + req.session.access_token},
+    uri: `${apiURL}/user/me`,
+    headers: {Authorization: `bearer ${req.session.access_token}`},
     json: true
-  }, function(e, r, body) {
-    if(e) return next(e);
-    res.json(body);
+  }, (err, r, body) => {
+    if (err) return next(err);
+    return res.json(body);
   });
 };
 
 
-exports.rules = function(req, res, next) {
-  db.getRules(req.session.automatic_id, function(e, docs) {
-    res.json(docs || []);
-  });
+exports.rules = (req, res, next) => {
+  db.getRules(req.session.automatic_id)
+    .then((docs) => res.json(docs || []))
+    .catch(next);
 };
 
 
-exports.createRule = function(req, res, next) {
-  var rule = formatRule(req);
+exports.createRule = (req, res, next) => {
+  const rule = formatRule(req);
 
-  db.createRule(rule, function(e, doc) {
-    if(e) return next(e);
-    res.json(doc);
-  });
+  db.createRule(rule)
+    .then((doc) => res.json(doc))
+    .catch(next);
 };
 
 
-exports.updateRule = function(req, res, next) {
-  var rule = formatRule(req);
+exports.updateRule = (req, res, next) => {
+  const rule = formatRule(req);
 
-  db.updateRule(req.body._id, req.session.automatic_id, rule, function(e, doc) {
-    if(e) return next(e);
-    res.json(doc);
-  });
+  db.updateRule(req.body._id, req.session.automatic_id, rule)
+    .then((doc) => res.json(doc))
+    .catch(next);
+};
+
+exports.destroyRule = (req, res, next) => {
+  db.destroyRule(req.body._id, req.session.automatic_id)
+    .then(() => res.json({}))
+    .catch(next);
 };
 
 
-
-exports.destroyRule = function(req, res, next) {
-  db.destroyRule(req.body._id, req.session.automatic_id, function(e) {
-    if(e) return next(e);
-    res.json({});
-  });
-};
-
-
-exports.counts = function(req, res, next) {
-  db.getRecentCount(req.session.automatic_id, function(e, docs) {
-    if(e) return next(e);
-    res.json(docs || {});
-  });
+exports.counts = (req, res, next) => {
+  db.getRecentCount(req.session.automatic_id)
+    .then((docs) => res.json(docs || {}))
+    .catch(next);
 };

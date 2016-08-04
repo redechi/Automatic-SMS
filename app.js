@@ -1,46 +1,46 @@
-var express = require('express');
-var path = require('path');
-var url = require('url');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
-var session = require('express-session');
-var nconf = require('nconf');
+const express = require('express');
+const path = require('path');
+const url = require('url');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const nconf = require('nconf');
 
 nconf
   .argv()
   .env()
-  .file({file:'./config.json'});
+  .file({file: './config.json'});
 
-var app = express();
+const app = express();
 
-if(app.get('env') !== 'development') {
-	nconf.set('URL', 'https://automaticsms.herokuapp.com');
+if (app.get('env') !== 'development') {
+  nconf.set('URL', 'https://automaticsms.herokuapp.com');
 } else {
-	nconf.set('URL', 'http://localhost:3000');
-	app.use(require('connect-livereload')());
+  nconf.set('URL', 'http://localhost:3000');
+  app.use(require('connect-livereload')());
 }
 
-var routes = require('./routes');
-var api = require('./routes/api');
-var oauth = require('./routes/oauth');
+const routes = require('./routes');
+const api = require('./routes/api');
+const oauth = require('./routes/oauth');
 
 app.set('views', __dirname + '/views');
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser(nconf.get('SESSION_SECRET')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-var store;
-var cookie;
-if(app.get('env') !== 'development') {
-  var RedisStore = require('connect-redis')(session);
-  var redisURL = url.parse(nconf.get('REDISCLOUD_URL'));
+let store;
+let cookie;
+if (app.get('env') !== 'development') {
+  const RedisStore = require('connect-redis')(session);
+  const redisURL = url.parse(nconf.get('REDISCLOUD_URL'));
   store = new RedisStore({
     host: redisURL.hostname,
     port: redisURL.port,
@@ -50,10 +50,10 @@ if(app.get('env') !== 'development') {
     maxAge: 31536000000
   };
 } else {
-  var memoryStore = session.MemoryStore;
-  store = new memoryStore();
+  const MemoryStore = session.MemoryStore;
+  store = new MemoryStore();
   cookie = {
-    maxAge: 3600000,
+    maxAge: 3600000
   };
 }
 
@@ -68,7 +68,7 @@ app.use(session({
 }));
 
 
-if(app.get('env') !== 'development') {
+if (app.get('env') !== 'development') {
   app.all('*', routes.force_https);
 } else {
   app.all('*', routes.check_dev_token);
@@ -96,7 +96,7 @@ app.get('/redirect/', oauth.redirect);
 // Connect to Automatic Events API over Websocket
 require('./libs/automatic_websocket')(app);
 
-// error handlers
+// Error handlers
 require('./libs/errors')(app);
 
 module.exports = app;

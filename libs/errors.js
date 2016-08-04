@@ -1,11 +1,10 @@
-module.exports = function(app) {
-
+module.exports = (app) => {
   // catch 404 errors
-  app.use(function(req, res, next) {
-    var err = new Error('Not Found');
+  app.use((req, res, next) => {
+    const err = new Error('Not Found');
     err.status = 404;
     res.status(404);
-    if(req.xhr) {
+    if (req.xhr) {
       res.send({
         message: err.message,
         error: {}
@@ -19,11 +18,11 @@ module.exports = function(app) {
     }
   });
 
-  // catch 401 Unauthorized errors
-  app.use(function(err, req, res, next) {
-    if(err.status !== 401) return next(err);
+  // Catch 401 Unauthorized errors
+  app.use((err, req, res, next) => {
+    if (err.status !== 401) return next(err);
     res.status(401);
-    if(req.xhr) {
+    if (req.xhr) {
       res.send({
         message: err.message,
         error: err
@@ -39,17 +38,17 @@ module.exports = function(app) {
 
 
   // log all other errors
-  app.use(function(err, req, res, next) {
+  app.use((err, req, res, next) => {
     console.error(err.stack || err);
     next(err);
   });
 
-  // development 500 error handler
-  // will print stacktrace
-  if(app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
+  // Development 500 error handler
+  // Will print stacktrace
+  if (app.get('env') === 'development') {
+    app.use((err, req, res, next) => {
       res.status(500);
-      if(req.xhr) {
+      if (req.xhr) {
         res.send({
           message: err.message,
           error: err
@@ -64,11 +63,11 @@ module.exports = function(app) {
   }
 
 
-  // production error handler
-  // no stacktraces leaked to user
-  app.use(function(err, req, res, next) {
+  // Production error handler
+  // No stacktraces leaked to user
+  app.use((err, req, res, next) => {
     res.status(500);
-    if(req.xhr) {
+    if (req.xhr) {
       res.send({
         message: err.message,
         error: {}
@@ -81,4 +80,4 @@ module.exports = function(app) {
       });
     }
   });
-}
+};
