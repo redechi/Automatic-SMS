@@ -1,4 +1,5 @@
 const moment = require('moment-timezone');
+const socket = require('socket.io-client')();
 const $ = require('jquery');
 window.jQuery = $;
 
@@ -30,30 +31,22 @@ const iconLatest = L.mapbox.marker.icon({
 });
 
 
-/* Web socket connection */
-const ws = new WebSocket((window.document.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.document.location.host);
-ws.onopen = () => {
+// Web socket connection
+socket.on('connect', () => {
   updateAlert('Connected', 'Waiting for location');
 
-  // If a shared page, send shareId
-  if (window.shareId) {
-    ws.send(JSON.stringify({shareId: shareId}));
+  socket.emit('initialize', { shareId });
+});
+
+socket.on('disconnect', () => {
+  if (!$('#alert').is(':visible')) {
+    updateAlert('Disconnected');
   }
-};
+});
 
-ws.onclose = (event) => {
-  updateAlert('Disconnected', event.reason);
-};
-
-ws.onmessage = (msg) => {
-  const data = JSON.parse(msg.data);
-  const description = [];
-
+socket.on('event', (data) => {
+  hideAlert();
   console.log(data);
-
-  if (data.msg !== 'Socket Opened') {
-    hideAlert();
-  }
 
   if (data.location) {
     const location = {
@@ -82,12 +75,7 @@ ws.onmessage = (msg) => {
       marker.openPopup();
     });
   }
-};
-
-
-setInterval( () => {
-  ws.send('ping');
-}, 15000);
+});
 
 
 function addMarker(location) {

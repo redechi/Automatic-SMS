@@ -2,17 +2,19 @@ const _ = require('underscore');
 const debug = require('debug')('automaticsms');
 const moment = require('moment');
 const nconf = require('nconf');
+
+const browserWebsocket = require('./browser_websocket');
 const db = require('./database');
 const helpers = require('./helpers');
 const sms = require('./sms');
 
 
 function formatMessage(rule, cb) {
-  const message = rule.message;
+  let message = rule.message;
   if (rule.includeMap) {
     db.createShare({automatic_id: rule.automatic_id})
       .then((share) => {
-        message += ` ${nconf.get('URL')}/l/${share.share_id}`;
+        message += ` ${nconf.get('URL')}/l/${share.shareId}`;
         cb(null, message);
       })
       .catch(cb);
@@ -107,7 +109,9 @@ function findRules(event, automaticEvent) {
           const phone = `+${rule.countryCode}${rule.phone}`;
 
           formatMessage(rule, (err, message) => {
-            if (err) return next(err);
+            if (err) {
+              console.error(err);
+            };
 
             debug('[' + automaticId + '][' + eventId + '][sendSMS] Sending ' + phone + ': ' + message);
             sms.sendSMS(automaticId, phone, message);
@@ -138,7 +142,7 @@ function lookupRule(event) {
 }
 
 
-module.exports = (app) => {
+exports.connect = () => {
   const automaticSocketURL = nconf.get('AUTOMATIC_WEBSOCKET_URL') + '?token=' + nconf.get('AUTOMATIC_CLIENT_ID') + ':' + nconf.get('AUTOMATIC_CLIENT_SECRET');
   const automaticSocket = require('socket.io-client')(automaticSocketURL);
 
@@ -147,10 +151,7 @@ module.exports = (app) => {
   });
 
   automaticSocket.on('location:updated', (data) => {
-    const browserSocket = app.get('wss');
-    if (browserSocket) {
-      browserSocket.sendEvent(data);
-    }
+    browserWebsocket.sendAutomaticEvent(data);
 
     lookupRule(data);
   });
@@ -158,10 +159,7 @@ module.exports = (app) => {
   automaticSocket.on('ignition:on', lookupRule);
 
   automaticSocket.on('ignition:off', (data) => {
-    const browserSocket = app.get('wss');
-    if (browserSocket) {
-      browserSocket.sendEvent(data);
-    }
+    browserWebsocket.sendAutomaticEvent(data);
 
     if (data && data.user && data.user.id) {
       // Stop sharing location

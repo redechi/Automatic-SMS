@@ -16,10 +16,13 @@ html(lang="en")
         .location-title
           .plus +
           span Location
-
-    .map-wrapper
-      #map.map
-      #alert.alert
+    if shareId
+      .map-wrapper
+        #map.map
+        #alert.alert
+    else
+      .well.text-center
+        h2 Expired Share URL
 
 
     script.

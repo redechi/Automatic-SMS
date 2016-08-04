@@ -1,5 +1,6 @@
 const monk = require('monk');
 const moment = require('moment');
+const nconf = require('nconf')
 const defaults = require('./defaults');
 const helpers = require('./helpers');
 const db = monk(process.env.MONGOLAB_URI || 'mongodb://127.0.0.1:27017/automaticsms');
@@ -85,18 +86,18 @@ exports.incrementCounts = (automaticId) => {
 };
 
 
-exports.getShare = (shareId) => {
+exports.getValidShare = (shareId) => {
   return shares.findOne({
-    share_id: shareId,
+    shareId,
     expires: {$gte: new Date()}
   });
 };
 
 
 exports.createShare = (share) => {
-  // Force expiration after 12 hours
-  share.expires = moment().add(12, 'hours').toDate();
-  share.share_id = helpers.randomAlphanumeric(8);
+  // Set expiration
+  share.expires = moment().add(nconf.get('URL_VALID_DURATION_HOURS'), 'hours').toDate();
+  share.shareId = helpers.randomAlphanumeric(8);
 
   return shares.insert(share);
 };

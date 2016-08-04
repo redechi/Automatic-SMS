@@ -1,84 +1,61 @@
 const _ = require('underscore');
 const async = require('async');
 const db = require('./database');
-const cookieParser = require('cookie-parser');
+const debug = require('debug')('automaticsms');
 const nconf = require('nconf');
-const parseCookie = cookieParser(nconf.get('SESSION_SECRET'));
+const socketio = require('socket.io');
+
+let io;
 
 
-exports.setupClientWebsocket = (app) => {
-  const wss = app.get('wss');
-
-  wss.on('connection', (client) => {
-    client.send(JSON.stringify({
-      msg: 'Socket Opened'
-    }));
-    parseCookie(client.upgradeReq, null, (err) => {
-      if (err) {
-        console.log(err);
-      }
-      const sessionID = client.upgradeReq.signedCookies['connect.sid'];
-      const store = app.get('store');
-      store.get(sessionID, (err, session) => {
-        if (session && session.automatic_id) {
-          client.automatic_id = session.automatic_id;
+function cleanupSockets() {
+  async.each(io.sockets.sockets, (socket, cb) => {
+    db.getValidShare(socket.shareId)
+      .then((share) => {
+        if (!share) {
+          debug(`Disconnecting Browser Socket ${socket.shareId}`);
+          socket.disconnect();
         }
+        cb();
+      })
+      .catch((err) => {
+        debug(`Disconnecting Browser Socket ${socket.shareId}`);
+        socket.disconnect();
+        cb();
       });
-    });
+  });
+}
 
-    client.on('message', (data) => {
-      let message;
-      try {
-        message = JSON.parse(data);
-      } catch (err) {}
 
-      // If a shareId, attach that shareId to client
-      if (message && message.shareId) {
-        parseCookie(client.upgradeReq, null, (err) => {
-          if (err) {
-            console.log(err);
-          }
+exports.setupWebsocket = (server) => {
+  io = socketio(server);
 
-          const sessionID = client.upgradeReq.signedCookies['connect.sid'];
-          const store = app.get('store');
-          store.get(sessionID, (err, session) => {
-            client.shared_automatic_id = session.shared_automatic_id;
-            client.share_expires = session.share_expires;
-            client.share_id = session.share_id;
-          });
-        });
+  io.on('connection', (socket) => {
+    socket.on('initialize', (data) => {
+      if (data && data.shareId) {
+        debug(`Initialzing Socket for shareId ${data.shareId}`);
+        socket.shareId = data.shareId;
+        db.getValidShare(data.shareId)
+          .then((share) => {
+            if (share && share.automatic_id) {
+              debug(`Joining room ${share.automatic_id}`);
+              socket.join(share.automatic_id);
+            }
+          })
+          .catch(console.error)
       }
     });
   });
 
+  // periodically disconnect clients when their share is removed from db.
+  setInterval(cleanupSockets, 10000);
+};
 
-  wss.sendEvent = (data) => {
-    if (data && data.user && data.user.id) {
-      const clients = _.filter(this.clients, (c) => {
-        if (c.shared_automatic_id && c.shared_automatic_id === data.user.id && new Date(c.share_expires) > new Date()) {
-          // User has valid share URL
-          return true;
-        } else {
-          return false;
-        }
-      });
-      clients.forEach( (client) => {
-        client.send(JSON.stringify(data));
-      });
-    }
-  };
-
-  setInterval(() => {
-    async.each(wss.clients, (client, cb) => {
-      if (client.share_id) {
-        db.getShare(client.share_id)
-          .then((doc) => {
-            if (!doc) {
-              client.terminate();
-            }
-            cb();
-          });
-      }
-    });
-  }, 10000);
+exports.sendAutomaticEvent = (data) => {
+  if (!data || !data.user || !data.user.id) {
+    console.error('Invalid Event');
+    console.error(data);
+  }
+  debug(`Sending event to ${data.user.id}`);
+  io.to(data.user.id).emit('event', data);
 };

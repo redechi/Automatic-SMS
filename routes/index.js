@@ -11,23 +11,15 @@ exports.index = (req, res, next) => {
 
 
 exports.share = (req, res, next) => {
-  if (!req.params.share_id) {
+  if (!req.params.shareId) {
     return next();
   }
 
-  return db.getShare(req.params.share_id)
+  return db.getValidShare(req.params.shareId)
     .then((doc) => {
-      if (!doc) {
-        return next();
-      }
-
-      req.session.share_id = doc.share_id;
-      req.session.shared_automatic_id = doc.automatic_id;
-      req.session.share_expires = doc.expires;
-
       return res.render('share', {
         mapboxAccessToken: nconf.get('MAPBOX_ACCESS_TOKEN'),
-        shareId: doc.share_id,
+        shareId: doc ? doc.shareId : undefined,
         loggedIn: false
       });
     })

@@ -7,8 +7,10 @@ nconf
   .env()
   .file({ file: './config.json'});
 
+const automaticWebsocket = require('../libs/automatic_websocket');
+const browserWebsocket = require('../libs/browser_websocket');
+
 const app = require('../app');
-const websocket = require('../libs/browser_websocket');
 
 app.set('port', process.env.PORT || 3000);
 
@@ -16,8 +18,5 @@ const server = app.listen(app.get('port'), () => {
   debug(`Express server listening on port ${server.address().port}`);
 });
 
-const WebSocketServer = require('ws').Server;
-const wss = new WebSocketServer({server: server});
-app.set('wss', wss);
-
-websocket.setupClientWebsocket(app);
+browserWebsocket.setupWebsocket(server);
+automaticWebsocket.connect();

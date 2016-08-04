@@ -77,7 +77,7 @@ if (app.get('env') !== 'development') {
 
 app.get('/', routes.index);
 
-app.get('/l/:share_id/', routes.share);
+app.get('/l/:shareId/', routes.share);
 
 app.get('/api/user/', routes.authenticate, api.user);
 
@@ -92,9 +92,6 @@ app.get('/authorize/', oauth.authorize);
 app.get('/logout/', oauth.logout);
 app.get('/disconnect/', oauth.disconnect);
 app.get('/redirect/', oauth.redirect);
-
-// Connect to Automatic Events API over Websocket
-require('./libs/automatic_websocket')(app);
 
 // Error handlers
 require('./libs/errors')(app);

@@ -55,6 +55,7 @@
     "request": "2.74.0",
     "serve-favicon": "2.3.0",
     "simple-oauth2": "0.8.0",
+    "socket.io": "1.4.8",
     "socket.io-client": "1.4.8",
     "timepicker": "1.11.1",
     "twilio": "2.9.1",
