@@ -36,6 +36,8 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser(nconf.get('SESSION_SECRET')));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.locals.googleMapsApiKey = nconf.get('GOOGLE_MAPS_BROWSER_KEY') || '';
+
 let store;
 let cookie;
 if (app.get('env') !== 'development') {

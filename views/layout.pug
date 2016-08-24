@@ -8,18 +8,18 @@ html(lang="en")
     meta(name="description" content="Text others when you arrive or depart")
     link(rel="stylesheet" type="text/css" href="/css/style.css" media="screen")
     link(rel="stylesheet" type="text/css" href="/css/css-toggle-switch/toggle-switch.css")
-      
+
   body
     .main-header
       .wrapper
         include header.pug
-        
+
         #top-menu.top-menu
 
     .wrapper.content
       block content
-        
-        
-    script(src="//maps.google.com/maps/api/js?libraries=places")
+
+
+    script(src=`//maps.google.com/maps/api/js?libraries=places&key=${googleMapsApiKey}`)
 
     block scripts
